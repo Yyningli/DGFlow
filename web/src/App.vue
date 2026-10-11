@@ -45,7 +45,7 @@ onBeforeUnmount(() => {
 
 <template>
   <PageBackdrop />
-  <div class="nb-app">
+  <div :class="['nb-app', { 'nb-app-monitor': page === 'monitor' }]">
     <NebulaHeader
       :page="page"
       :connected="store.connected.value"
@@ -56,7 +56,7 @@ onBeforeUnmount(() => {
 
     <main class="nb-main">
       <div class="nb-container wide">
-        <div v-if="!store.connected.value && !store.initialLoading.value" class="nb-notice warning" style="margin-top:24px">
+        <div v-if="page !== 'monitor' && !store.connected.value && !store.initialLoading.value" class="nb-notice warning" style="margin-top:24px">
           <LabIcon name="alert" :size="18" />
           <div>
             <strong>暂时无法连接实验引擎</strong>
@@ -74,6 +74,7 @@ onBeforeUnmount(() => {
     </main>
 
     <NebulaFooter
+      v-if="page !== 'monitor'"
       :connected="store.connected.value"
       :version="store.status.value?.version"
       :last-updated="lastUpdated"

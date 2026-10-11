@@ -26,6 +26,7 @@ from dgfl import system_info
 from dgfl.crypto import backend as b
 from dgfl.crypto import protocol as p
 from dgfl.deployment import cluster_topology
+from dgfl.experiments.monitoring import RunNodeMonitor, clean_event, frozen_nodes, monitor_snapshot
 from dgfl.experiments.resources import check_wire_resources
 from dgfl.experiments.telemetry import LocalProcessMonitor
 from dgfl.experiments.tensorboard import TensorBoardLogs
@@ -337,6 +338,7 @@ class RunManager:
         self.lock=threading.RLock(); self.active=None; self.stop_event=threading.Event(); self.records={}
         self.last_nodes=[]
         self._monitors={}
+        self._node_monitors={}
         self.tensorboard=TensorBoardLogs(self.runtime)
         for path in sorted((self.runtime/'results').glob('*/result.json')):
             try:
@@ -347,19 +349,50 @@ class RunManager:
                 self.records[record['run_id']]=record
             except (ValueError,KeyError): continue
 
-    def snapshot(self,run_id):
+    def snapshot(self,run_id,*,include_history=True):
+        def resource_view(value):
+            if include_history or not isinstance(value,dict): return value
+            result=dict(value)
+            if isinstance(value.get('hardware'),dict):
+                hardware=dict(value['hardware'])
+                if 'samples' in hardware:
+                    hardware.pop('samples')
+                    hardware['history_omitted']=True
+                result['hardware']=hardware
+            return result
+
         with self.lock:
             if run_id not in self.records: raise KeyError(run_id)
-            record=json.loads(json.dumps(self.records[run_id],allow_nan=False))
+            source=self.records[run_id]
+            if not include_history:
+                evidence=dict(source.get('evidence') or {})
+                for field in ('resources','memory'):
+                    if field in evidence: evidence[field]=resource_view(evidence[field])
+                source={**source,'evidence':evidence}
+            record=json.loads(json.dumps(source,allow_nan=False))
             monitor=self._monitors.get(run_id) if record['status'] in ('queued','running','stopping') else None
+            node_monitor=self._node_monitors.get(run_id)
         # Cached sampling only: never wait for sensors while holding the run lock.
         if monitor is not None and callable(getattr(monitor,'snapshot',None)):
             try:
                 resources=monitor.snapshot()
-                record.setdefault('evidence',{})['resources']=json.loads(json.dumps(resources,allow_nan=False))
+                record.setdefault('evidence',{})['resources']=json.loads(json.dumps(resource_view(resources),allow_nan=False))
             except Exception:
                 pass  # A transient monitoring error must not hide experiment status.
+        if node_monitor is not None:
+            record.setdefault('evidence',{})['node_monitoring']=node_monitor.snapshot()
         return record
+
+    def monitor_snapshot(self,run_id):
+        with self.lock:
+            if run_id not in self.records: raise KeyError(run_id)
+            source=self.records[run_id]
+            evidence=source.get('evidence') or {}
+            record={'run_id':run_id,'status':source.get('status'),'config':dict(source.get('config') or {}),
+                    'evidence':{key:json.loads(json.dumps(evidence[key])) for key in
+                                ('node_snapshot','node_monitoring','members') if key in evidence}}
+            collector=self._node_monitors.get(run_id)
+        return monitor_snapshot(record,collector.snapshot() if collector is not None else None)
 
     def _sync_tensorboard(self,record):
         try:
@@ -376,6 +409,15 @@ class RunManager:
         return self._sync_tensorboard(self.snapshot(run_id))
 
     def _save(self,record):
+        collector=self._node_monitors.get(record['run_id'])
+        if collector is not None:
+            record.setdefault('evidence',{})['node_monitoring']=collector.snapshot()
+            totals=record['evidence']['node_monitoring'].get('summary',{}).get('training_rounds',{})
+            for row in record.get('rounds',[]):
+                measured=totals.get(str(row['round']))
+                if measured:
+                    row['monitoring_overhead']=dict(measured)
+                    row['metrics_eval_s']=measured.get('metrics_eval_s')
         atomic_json(self.runtime/'results'/record['run_id']/'result.json',record)
 
     def _failure_detail(self,exc):
@@ -486,6 +528,7 @@ class RunManager:
                                           (('proof_suite','lego_norm_v1'),('verification','deterministic'),
                                            ('verification_workers',1),('verification_threads',2),('proof_block_size',128))},
                         'implementation':implementation_evidence()}}
+            record['evidence']['node_snapshot']=frozen_nodes(cluster,config)
             if crs_evidence is not None:
                 record['evidence']['proof_parameters']=crs_evidence
                 record['evidence']['proof_settings'].pop('proof_block_size',None)
@@ -526,18 +569,44 @@ class RunManager:
     def _run(self,record):
         rpc=None; executor=None; start=time.perf_counter(); cpu_start=time.process_time(); cfg=record['config']
         gpu_device=None; gpu_before=None
-        monitor=None; monitoring_stage='construct'
+        monitor=None; node_monitor=None; monitoring_stage='construct'
         outcome='completed'; failure=None
-        try:
-            monitor=LocalProcessMonitor(self.runtime)
-            monitor.on_sample=lambda row:self.tensorboard.write_sample(record['run_id'],row)
+
+        def monitoring_failure(stage,exc):
+            # Sensor, callback and optional log failures are observability
+            # diagnostics. They never change the protocol's result or outcome.
             with self.lock:
-                self._monitors[record['run_id']]=monitor
-            monitoring_stage='start'; monitor.start(); monitoring_stage=None
+                record.setdefault('evidence',{})['monitoring']={
+                    'available':False,'stage':stage,'error':self._failure_detail(exc)}
+
+        def sample_observed(row):
+            try:
+                self.tensorboard.write_sample(record['run_id'],row)
+            except Exception as exc:
+                monitoring_failure('sample_log',exc)
+            if node_monitor is not None:
+                try: node_monitor.observe_local(row)
+                except Exception as exc: monitoring_failure('sample_observer',exc)
+
+        try:
+            try:
+                monitor=LocalProcessMonitor(self.runtime)
+                monitor.interval_seconds=5
+                monitor.on_sample=sample_observed
+                with self.lock:
+                    self._monitors[record['run_id']]=monitor
+                monitoring_stage='start'; monitor.start()
+            except Exception as exc:
+                monitoring_failure(monitoring_stage,exc)
             execution,workers=execution_settings(cfg)
             executor=RunExecutor(execution,workers)
             record['evidence']['execution']={'requested':cfg.get('execution','auto'),'resolved':execution,'rpc_workers':workers}
             cluster=json.loads((self.runtime/'cluster.json').read_text('utf8'))
+            record['evidence'].setdefault('node_snapshot',frozen_nodes(cluster,cfg))
+            local_machine='local' if cluster.get('deployment')=='single_host' else 'A'
+            machine_marker=self.runtime/'machine.json'
+            if machine_marker.exists(): local_machine=json.loads(machine_marker.read_text('utf8'))['machine']
+            record['evidence']['monitor_local_machine']=local_machine
             members=_run_members(cfg,cluster)
             cfg.setdefault('grid',8)
             cfg.setdefault('dataset','mnist')
@@ -560,7 +629,8 @@ class RunManager:
                 return prepare(payload) if callable(prepare) else payload
             def event(stage,message,r=0):
                 if hasattr(monitor,'set_context'):
-                    monitor.set_context(r,stage)
+                    try: monitor.set_context(r,stage)
+                    except Exception as exc: monitoring_failure('context',exc)
                 self._emit(record,stage,message,r)
             def optional(jobs,stage,round_id,failures=None):
                 def one(job):
@@ -586,6 +656,18 @@ class RunManager:
                 return {'id':node,'role':''.join(c for c in node if not c.isdigit()),'status':state,
                         'host':cluster['nodes'][node]['url'],'capabilities':capabilities}
             self.last_nodes=executor.map(health,cluster['nodes'],always_parallel=True)
+            telemetry_nodes={row['id'] for row in self.last_nodes if row['capabilities'].get('node_telemetry') is True}
+            if telemetry_nodes:
+                try:
+                    node_monitor=RunNodeMonitor(self.runtime,record['run_id'],record['evidence']['node_snapshot'],
+                        self.tensorboard,local_machine=local_machine,local_epochs=cfg['local_epochs'],eligible_ids=telemetry_nodes)
+                    with self.lock: self._node_monitors[record['run_id']]=node_monitor
+                    node_monitor.start()
+                    if callable(getattr(monitor,'snapshot',None)):
+                        cached=monitor.snapshot().get('hardware',{}).get('samples',[])
+                        if cached: node_monitor.observe_local(cached[-1])
+                except Exception as exc:
+                    record['evidence']['node_monitoring_error']=self._failure_detail(exc)
             online={s['id'] for s in self.last_nodes if s['status']=='online'}
             batched_authorization=all(any(s['id']==authority and s['capabilities'].get('batched_authorization') is True
                                          for s in self.last_nodes) for authority in authorities)
@@ -947,6 +1029,23 @@ class RunManager:
                      'attack_accepted':len(set(approved)&attack_ids),'attack_submitted':len(attack_ids & set(replies)),
                      'honest_rejected':len(honest-set(approved)),'honest_total':len(honest),
                      'reference_norm_squared':sum(x*x for x in reference)}
+                client_metrics={}
+                for cid,reply in replies.items():
+                    epochs=reply.get('training_metrics') or []
+                    if not isinstance(epochs,list) or len(epochs)>cfg['local_epochs']: continue
+                    accepted=[]
+                    for epoch in epochs:
+                        try:
+                            epoch_event=clean_event({'sequence':1,'kind':'epoch','time':epoch.get('time'),
+                                                     'payload':epoch},cfg['local_epochs'])
+                            if epoch_event['payload']['round_id']==round_id:
+                                accepted.append({**epoch_event['payload'],'time':epoch_event['time']})
+                        except (ValueError,TypeError,AttributeError): pass
+                    if accepted: client_metrics[cid]=accepted
+                    if node_monitor is not None: node_monitor.observe_training(cid,accepted)
+                row['client_training_metrics']=client_metrics
+                row['metrics_eval_s']=(sum(epoch.get('metrics_eval_s') or 0.
+                    for epochs in client_metrics.values() for epoch in epochs) if client_metrics else None)
                 if combine_verification_metrics is not None:
                     row['combine_metrics']=combine_verification_metrics
                     row['cloud_selection']=cloud_selection
@@ -965,9 +1064,9 @@ class RunManager:
                 event('completed_round',f'第 {round_id} 轮完成，测试准确率 {metrics["accuracy"]:.2%}',round_id)
                 self._sync_tensorboard(record)
         except InterruptedError as exc:
-            outcome='failed' if monitoring_stage is not None else 'aborted'; failure=str(exc)
+            outcome='aborted'; failure=str(exc)
         except Exception as exc:
-            outcome='aborted' if isinstance(exc,ValueError) and monitoring_stage is None else 'failed'
+            outcome='aborted' if isinstance(exc,ValueError) else 'failed'
             failure=str(exc).replace(str(self.runtime.parent),'[workspace]')[:600]
         finally:
             cleanup_errors=[]
@@ -979,8 +1078,6 @@ class RunManager:
                 outcome='failed'
                 failure=(failure+'；' if failure else '')+f'{stage}失败：{detail}'
 
-            if monitoring_stage is not None:
-                record['evidence']['monitoring']={'available':False,'stage':monitoring_stage,'error':failure}
             if executor:
                 try: executor.close()
                 except Exception as exc: cleanup_failure('executor_close',exc)
@@ -996,10 +1093,16 @@ class RunManager:
             if monitor is not None:
                 try: memory=monitor.finish()
                 except Exception as exc:
-                    cleanup_failure('monitor_finish',exc)
+                    monitoring_failure('finish',exc)
                     memory['error']=self._failure_detail(exc)
             record['evidence']['memory']=memory
             record['evidence']['resources']=memory
+            if node_monitor is not None:
+                try:
+                    cached=memory.get('hardware',{}).get('samples',[])
+                    if cached: node_monitor.observe_local(cached[-1])
+                    record['evidence']['node_monitoring']=node_monitor.finish()
+                except Exception as exc: record['evidence']['node_monitoring_error']=self._failure_detail(exc)
             self._sync_tensorboard(record)
             try:
                 self.tensorboard.close(record['run_id'])
@@ -1031,4 +1134,5 @@ class RunManager:
                     record['events'][-1]['message']=record['error']
                 finally:
                     self._monitors.pop(record['run_id'],None)
+                    self._node_monitors.pop(record['run_id'],None)
                     if self.active==record['run_id']: self.active=None

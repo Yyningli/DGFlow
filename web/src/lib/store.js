@@ -46,6 +46,19 @@ const hasActiveRun = computed(() =>
 const datasetReady = computed(() => isDatasetReady(status.value, selectedDataset.value))
 const nodes = computed(() => status.value?.nodes || [])
 
+function defaultRunId(activeRunId) {
+  if (activeRunId) return activeRunId
+  let latest = null
+  let latestTime = -Infinity
+  for (const run of runs.value) {
+    if (!run?.run_id) continue
+    const created = typeof run.created_at === 'string' ? Date.parse(run.created_at) : NaN
+    const time = Number.isFinite(created) ? created : -Infinity
+    if (!latest || time > latestTime) { latest = run; latestTime = time }
+  }
+  return latest?.run_id || ''
+}
+
 async function refreshRuns(signal) {
   try {
     const data = await api.listRuns(signal)
@@ -69,7 +82,7 @@ async function poll() {
     connected.value = true
     connectionError.value = ''
     if (!listLoaded || pollCount % 5 === 0) await refreshRuns(signal)
-    if (!selectedRunId.value) selectedRunId.value = data.active_run_id || runs.value[0]?.run_id || ''
+    if (!selectedRunId.value) selectedRunId.value = defaultRunId(data.active_run_id)
     if (selectedRunId.value) {
       const requestedId = selectedRunId.value
       try {

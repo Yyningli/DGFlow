@@ -8,7 +8,9 @@ The optional torch backend deliberately uses CPU/float64 for reproducibility.
 """
 from __future__ import annotations
 
-from collections.abc import Sequence
+import logging
+import time
+from collections.abc import Callable, Sequence
 from numbers import Integral
 
 import numpy as np
@@ -16,6 +18,7 @@ import numpy as np
 FEATURES = 64
 CLASSES = 10
 PARAMETERS = FEATURES * CLASSES + CLASSES
+_LOG = logging.getLogger(__name__)
 
 
 def parameter_count(features: int = FEATURES) -> int:
@@ -61,11 +64,15 @@ def train_local(
     batch_size: int = 64,
     seed: int = 42,
     backend: str = "numpy",
+    on_epoch: Callable[[dict], None] | None = None,
 ) -> np.ndarray:
     """Minimize average softmax cross-entropy with deterministic shuffled SGD.
 
 Returns a complete local model, not a delta. No network, data downloading,
 implicit backend fallback, momentum, weight decay, or hidden quantization occurs.
+When requested, epoch diagnostics evaluate this client's actual training data.
+These diagnostics never expose model coordinates or samples to the callback;
+diagnostic failures do not change or repeat optimizer steps.
 """
     w = _weights(weights, features)
     x, y = _data(x, y, features)
@@ -79,11 +86,12 @@ implicit backend fallback, momentum, weight decay, or hidden quantization occurs
         raise ValueError("backend must be 'numpy' or 'torch'")
     rng = np.random.default_rng(seed)
     if backend == "torch":
-        return _train_torch(w, x, y, features, epochs, learning_rate, batch_size, rng)
+        return _train_torch(w, x, y, features, epochs, learning_rate, batch_size, rng, on_epoch)
     split = features * CLASSES
     matrix, bias = w[:split].reshape(features, CLASSES), w[split:]
     batch_rows = np.arange(min(batch_size, len(y)))
-    for _ in range(epochs):
+    for epoch in range(epochs):
+        started = time.perf_counter() if on_epoch is not None else None
         order = rng.permutation(len(y))
         for start in range(0, len(y), batch_size):
             indices = order[start:start + batch_size]
@@ -98,12 +106,31 @@ implicit backend fallback, momentum, weight decay, or hidden quantization occurs
             error /= len(by)
             matrix -= learning_rate * (bx.T @ error)
             bias -= learning_rate * error.sum(axis=0)
+        if on_epoch is not None:
+            elapsed = time.perf_counter() - started
+            _epoch_metrics(on_epoch, lambda: w, x, y, features, epoch + 1, elapsed)
     if not np.isfinite(w).all():
         raise ValueError("training produced nonfinite parameters; reduce learning_rate or feature scale")
     return w
 
 
-def _train_torch(w, x, y, features, epochs, learning_rate, batch_size, rng):
+def _epoch_metrics(on_epoch, weights, x, y, features, epoch, elapsed):
+    """Keep observational evaluation outside the optimizer's failure boundary."""
+    started = time.perf_counter()
+    try:
+        metrics = evaluate(weights(), x, y, features=features)
+    except Exception as exc:
+        _LOG.warning("Local epoch evaluation unavailable (%s)", type(exc).__name__)
+        metrics = {"samples": len(y), "metrics_error": "local epoch evaluation unavailable"}
+    metrics.update(epoch=int(epoch), elapsed_s=float(elapsed),
+                   metrics_eval_s=time.perf_counter() - started)
+    try:
+        on_epoch(metrics)
+    except Exception as exc:
+        _LOG.warning("Local epoch monitoring callback unavailable (%s)", type(exc).__name__)
+
+
+def _train_torch(w, x, y, features, epochs, learning_rate, batch_size, rng, on_epoch=None):
     try:
         import torch
         import torch.nn.functional as functional
@@ -113,7 +140,8 @@ def _train_torch(w, x, y, features, epochs, learning_rate, batch_size, rng):
     tensor = torch.tensor(w, dtype=torch.float64, requires_grad=True, device="cpu")
     features_t = torch.tensor(x, dtype=torch.float64, device="cpu")
     labels = torch.tensor(y, dtype=torch.int64, device="cpu")
-    for _ in range(epochs):
+    for epoch in range(epochs):
+        started = time.perf_counter() if on_epoch is not None else None
         # One conversion per epoch retains the NumPy shuffle and exact batches.
         order = torch.from_numpy(rng.permutation(len(y)))
         for start in range(0, len(y), batch_size):
@@ -124,6 +152,10 @@ def _train_torch(w, x, y, features, epochs, learning_rate, batch_size, rng):
             with torch.no_grad():
                 tensor -= learning_rate * tensor.grad
             tensor.grad = None
+        if on_epoch is not None:
+            elapsed = time.perf_counter() - started
+            _epoch_metrics(on_epoch, lambda: tensor.detach().numpy().copy(),
+                           x, y, features, epoch + 1, elapsed)
     result = tensor.detach().numpy().copy()
     if not np.isfinite(result).all():
         raise ValueError("training produced nonfinite parameters; reduce learning_rate or feature scale")

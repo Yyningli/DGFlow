@@ -2,9 +2,9 @@
 
 **基于去中心化函数加密的隐私保护鲁棒联邦学习系统**
 
-监控页新增全局模型测试准确率、交叉熵损失，以及本机 CPU、GPU、显存、内存和磁盘占用曲线，并集成同源 TensorBoard。旧实验可按已有证据补录，新实验会自动写入标量日志；使用方法、资源采样范围和旧环境升级步骤见[监控与 TensorBoard](docs/submission/monitoring.md)。
+监控页在全站导航下满屏显示自动加载的原生 TensorBoard，通过原生运行列表与正则筛选查看实验、节点和主机指标，也可勾选多个实验对比。全局测试指标每轮记录，客户端训练集指标每个本地 epoch 记录，节点与各主机资源约每 5 秒采集；协议与监控通信量分别统计。TensorBoard 复用 8765 同源服务，不新增端口。旧实验只补录已有证据，缺失数据不由当前部署补全；使用方法、指标口径和旧环境升级步骤见[监控与 TensorBoard](docs/submission/monitoring.md)。
 
-本次通过真实本机 MNIST 训练和原生 TensorBoard 浏览器检查；具体测试结果与采样证据见[监控验收记录](docs/research/tensorboard-monitoring-20261008.md)。
+2026-10-08 的监控版本已通过真实本机 MNIST 训练和原生 TensorBoard 浏览器检查；该历史版本的测试结果与采样证据见[监控验收记录](docs/research/tensorboard-monitoring-20261008.md)，不作为本次逐节点监控重做的验收数字。
 
 此源码版本包含 MNIST / CIFAR-10 镜像下载、完整部署准备、GPU 自动检测及此前 P1/P2 修复。首次启动脚本会先安装依赖、构建原生后端和前端、准备两种数据集，并在目标运行目录补齐默认 Lego CRS，全部完成后才打开服务；也可先单独部署，再离线启动。纯源码目录不包含依赖环境、数据、运行目录、生成的 CRS 或身份，运行材料由部署阶段本地准备，详见[源码项目说明](SOURCE-PACKAGE.md)。下文带日期的验收和性能数字属于其原始版本。
 
@@ -33,6 +33,7 @@ DGFlow Lab 是一个可运行的研究原型，用于观察联邦训练、真实
 | 需要完成的操作 | 文档 |
 | --- | --- |
 | 使用中文实验台、解释指标与错误 | [用户手册](docs/submission/user-manual.md) |
+| 查看 TensorBoard、节点与主机资源、对比实验 | [监控与 TensorBoard](docs/submission/monitoring.md) |
 | 安装、单机启动、三机分发与排错 | [部署说明](docs/submission/deployment.md) |
 | 准备现场演示并准确说明结果 | [演示脚本](docs/submission/demo-script.md) |
 | 了解设计与正式实测证据 | [设计报告](docs/submission/design-report.md) |

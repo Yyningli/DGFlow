@@ -204,7 +204,8 @@ def test_training_receives_owner_key_model_bundle_and_uploads_only_one_sealed_pr
         with pytest.raises(ValueError,match='pinned round'):
             client.execute('train',{**args,'key_messages':changed})
         result=client.execute('train',args)
-        assert set(result)=={'packet','training_s','encrypt_s','proof_s'}
+        assert set(result)=={'packet','training_s','encrypt_s','proof_s','training_metrics',
+                             'metrics_eval_s','metrics_callback_s'}
         assert isinstance(result['packet'],bytes)
         packet=edges[0].identity.open(result['packet'],'client-submission',roles.envelope_context(ctx),'client1')['payload']
         assert packet['context']==ctx and packet['client_id']=='client1' and 'proof' in packet

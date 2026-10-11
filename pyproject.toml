@@ -23,6 +23,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "dgfl.crypto" = ["cuda/*.cuh"]
+"dgfl.services" = ["assets/*.js", "assets/*.css"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

@@ -31,7 +31,11 @@ class _ProcessIdentity:
 
 
 class LocalProcessMonitor:
-    def __init__(self,runtime,*,hardware=None,max_hardware_samples=4096,finalization_timeout_seconds=3):
+    def __init__(self,runtime,*,hardware=None,max_hardware_samples=4096,finalization_timeout_seconds=3,
+                 interval_seconds=1):
+        if not isinstance(interval_seconds,(int,float)) or isinstance(interval_seconds,bool) or not .1<=interval_seconds<=60:
+            raise ValueError('sampling interval must be between 0.1 and 60 seconds')
+        self.interval_seconds=float(interval_seconds)
         self.runtime=Path(runtime); self.peak=0; self.samples=0; self.stop_flag=threading.Event()
         self.thread=None; self.started_at=time.time(); self.cpu_baselines={}; self.cpu_observed={}; self.cpu_roles={}
         self.started_monotonic=time.monotonic()
@@ -149,7 +153,7 @@ class LocalProcessMonitor:
                                        'exited workers between samples may be missed'}
             metadata.update(sampling_complete=sampling_complete,cleanup_complete=cleanup_complete,
                             finalization_note=note)
-            return {'schema_version':1,'interval_seconds':1,
+            return {'schema_version':1,'interval_seconds':self.interval_seconds,
                     'started_at':datetime.fromtimestamp(self.started_at,UTC).isoformat(timespec='milliseconds'),
                     'elapsed_seconds':time.monotonic()-self.started_monotonic,
                     'sample_count':self._hardware_count,'retained_sample_count':len(samples),
@@ -254,7 +258,7 @@ class LocalProcessMonitor:
             by_role={}
             for key,seconds in self.cpu_observed.items():
                 role=self.cpu_roles[key]; by_role[role]=by_role.get(role,0.)+seconds
-            return {'peak_sampled_rss_bytes':self.peak,'samples':self.samples,'interval_seconds':1,
+            return {'peak_sampled_rss_bytes':self.peak,'samples':self.samples,'interval_seconds':self.interval_seconds,
                     'sampled_cpu_seconds':sum(by_role.values()),'sampled_cpu_seconds_by_role':by_role,
                     'cpu_measurement':'user + system deltas; exited workers between samples may be missed; existing-process CPU before first sample excluded',
                     'scope':'local controller + recorded local role process trees; RSS sum may double-count shared pages',
@@ -266,7 +270,7 @@ class LocalProcessMonitor:
         self.sample(sample_hardware=False)
         def loop():
             if not self.stop_flag.is_set(): self._capture_hardware()
-            while not self.stop_flag.wait(1): self.sample()
+            while not self.stop_flag.wait(self.interval_seconds): self.sample()
         self.thread=threading.Thread(target=loop,daemon=True); self.thread.start()
 
     def finish(self):

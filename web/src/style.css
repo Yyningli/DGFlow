@@ -86,6 +86,13 @@ h1, h2, h3, h4, p, dl, dd, dt { margin: 0; }
 .nb-container { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
 .nb-container.wide { max-width: 1440px; }
 
+/* Monitor follows the native TensorBoard layout beneath the shared navigation.
+   Flex allocation also accounts for the taller, wrapped header on narrow screens. */
+.nb-app-monitor { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
+.nb-app-monitor > .nb-header { flex-shrink: 0; }
+.nb-app-monitor > .nb-main { display: flex; min-height: 0; overflow: hidden; }
+.nb-app-monitor > .nb-main > .nb-container { flex: 1; min-width: 0; min-height: 0; width: 100%; max-width: none; margin: 0; padding: 0; }
+
 /* --- Masthead ------------------------------------------------------------ */
 
 .nb-header {

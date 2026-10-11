@@ -189,7 +189,7 @@ def test_thread_start_failure_is_terminal_and_releases_admission(experiment, mon
 
 
 @pytest.mark.parametrize('stage', ['construct', 'start', 'finish'])
-def test_monitor_lifecycle_failure_is_explicit_and_releases_admission(experiment, monkeypatch, stage):
+def test_monitor_lifecycle_failure_is_diagnostic_and_preserves_training(experiment, monkeypatch, stage):
     manager, record, rpcs = experiment
     monitors = []
 
@@ -216,8 +216,10 @@ def test_monitor_lifecycle_failure_is_explicit_and_releases_admission(experiment
     manager._run(record)
     final = manager.snapshot(record['run_id'])
     assert manager.active is None
-    assert final['status'] == 'failed'
-    assert f'monitor {stage} unavailable' in final['error']
+    assert final['status'] == 'completed'
+    assert final['error'] is None
+    assert final['summary']['completed_rounds'] == 1
+    assert f'monitor {stage} unavailable' in final['evidence']['monitoring']['error']
     assert final['summary']['elapsed_s'] > 0
     assert final['events'][-1]['stage'] == 'finished'
     assert all(rpc.closed for rpc in rpcs)
@@ -227,7 +229,7 @@ def test_monitor_lifecycle_failure_is_explicit_and_releases_admission(experiment
     else:
         assert final['evidence']['memory']['available'] is False
     persisted = json.loads((manager.runtime / 'results' / record['run_id'] / 'result.json').read_text('utf8'))
-    assert persisted['status'] == 'failed'
+    assert persisted['status'] == 'completed'
 
 
 @pytest.mark.parametrize('stage', ['executor_close', 'gpu_profile', 'rpc_close'])

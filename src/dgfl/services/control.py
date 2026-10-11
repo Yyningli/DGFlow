@@ -579,7 +579,12 @@ def create_control_app(runtime, *, auto_prepare_compute=True):
 
     @app.get('/api/runs/{run_id}')
     def detail(run_id:str):
-        try: return manager.snapshot(run_id)
+        try: return manager.snapshot(run_id,include_history=False)
+        except KeyError as exc: raise HTTPException(404,'任务不存在') from exc
+
+    @app.get('/api/runs/{run_id}/monitor')
+    def monitor_detail(run_id:str):
+        try: return manager.monitor_snapshot(run_id)
         except KeyError as exc: raise HTTPException(404,'任务不存在') from exc
 
     @app.post('/api/runs/{run_id}/stop')
@@ -589,7 +594,9 @@ def create_control_app(runtime, *, auto_prepare_compute=True):
 
     @app.get('/api/runs/{run_id}/export')
     def export(run_id:str):
-        return JSONResponse(detail(run_id),headers={'Content-Disposition':f'attachment; filename="run-{run_id}.json"'})
+        try: record=manager.snapshot(run_id)
+        except KeyError as exc: raise HTTPException(404,'任务不存在') from exc
+        return JSONResponse(record,headers={'Content-Disposition':f'attachment; filename="run-{run_id}.json"'})
 
     @app.get('/api/tensorboard/status')
     def tensorboard_status():

@@ -1,11 +1,13 @@
 """Private role workers; coordinator receives only permitted public results."""
 import json
+import logging
 import math
 import multiprocessing
 import re
 import time
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures.process import BrokenProcessPool
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -26,6 +28,7 @@ from dgfl.validation.policy import (
 )
 
 AUTHORITIES=['authority1','authority2','authority3']
+_LOG=logging.getLogger(__name__)
 TOPOLOGY_FIELDS={'client_count','authority_count','aggregator_count','authority_threshold',
                  'aggregator_threshold','client_authorities'}
 
@@ -356,8 +359,9 @@ def aggregate_verification(identity,certificates,ctx,decision,*,dkg_commitments=
 
 
 class RoleWorker:
-    def __init__(self,node_id,runtime,identity):
+    def __init__(self,node_id,runtime,identity,telemetry=None):
         self.node_id=node_id; self.runtime=Path(runtime); self.identity=identity
+        self.telemetry=telemetry
         self.folder=self.runtime/'nodes'/node_id; self.folder.mkdir(parents=True,exist_ok=True)
         self.auth=None; self.ctx=None; self.approval=None; self.finalized=False
         self._verification_pool=None; self._verification_pool_size=None
@@ -919,11 +923,31 @@ class RoleWorker:
         with np.load(data_path,allow_pickle=False) as data: x,y=data['x'].copy(),data['y'].copy()
         attack=args.get('attack','none')
         if attack=='label_flip': y=(y+1)%10
+        training_metrics=[]; metrics_eval_s=0.; metrics_callback_s=0.
+
+        def record_epoch(metrics):
+            nonlocal metrics_eval_s,metrics_callback_s
+            callback_start=time.perf_counter()
+            try:
+                row={**metrics,'time':datetime.now(UTC).isoformat(),'round_id':ctx['round_id'],
+                     'step':(ctx['round_id']-1)*args['local_epochs']+metrics['epoch']}
+                training_metrics.append(row)
+                metrics_eval_s+=metrics['metrics_eval_s']
+                if self.telemetry is not None:
+                    try:
+                        self.telemetry.record_epoch(ctx['task_id'],ctx['round_id'],args['local_epochs'],row)
+                    except Exception as exc:
+                        _LOG.warning('Client epoch telemetry unavailable (%s)',type(exc).__name__)
+            finally:
+                metrics_callback_s+=time.perf_counter()-callback_start
+
         start=time.perf_counter()
         weights=train_local(np.asarray(reference,dtype=float)/ctx['scale'],x,y,features=features,epochs=args['local_epochs'],
-                            learning_rate=.3,batch_size=64,seed=args['seed'],backend=args.get('backend','numpy'))
+                            learning_rate=.3,batch_size=64,seed=args['seed'],backend=args.get('backend','numpy'),
+                            on_epoch=record_epoch)
         if attack in ('sign_flip','random'): weights=attack_weights(weights,attack,args['seed'],features=features)
-        q=quantize(weights,ctx['scale'],ctx['bits']); training_s=time.perf_counter()-start
+        q=quantize(weights,ctx['scale'],ctx['bits'])
+        training_s=max(0.,time.perf_counter()-start-metrics_eval_s-metrics_callback_s)
         if mode=='plain':
             result={'plain_model':q,'training_s':training_s,'encrypt_s':0.,'proof_s':0.}
         else:
@@ -934,6 +958,15 @@ class RoleWorker:
             if pinned_topology(policy) is not None:
                 packet=self.identity.seal(topology['client_authorities'][self.node_id],'client-submission',packet,self._envelope_context(ctx))
             result={'packet':packet,'training_s':training_s,'encrypt_s':encrypt_s,'proof_s':proof_s,**parameters_extra}
+        result.update(training_metrics=training_metrics,metrics_eval_s=metrics_eval_s,
+                      metrics_callback_s=metrics_callback_s)
+        if self.telemetry is not None:
+            try:
+                publish=getattr(self.telemetry,'record_training_summary',None)
+                if callable(publish):
+                    publish(ctx['task_id'],ctx['round_id'],args['local_epochs'],result)
+            except Exception as exc:
+                _LOG.warning('Client training telemetry unavailable (%s)',type(exc).__name__)
         atomic_bytes(marker,{**binding,'status':'complete','result':result})
         return result
 

@@ -53,6 +53,7 @@ export const api = {
   startDeployment: (configuration, signal) => deploymentRequest('start', configuration, signal),
   listRuns: signal => request('/runs', { signal }),
   getRun: (id, signal) => request(`/runs/${encodeURIComponent(id)}`, { signal }),
+  getMonitor: (id, signal) => request(`/runs/${encodeURIComponent(id)}/monitor`, { signal }),
   startRun: (config, signal) => request('/runs', { method: 'POST', body: JSON.stringify(config), signal }),
   stopRun: (id, signal) => request(`/runs/${encodeURIComponent(id)}/stop`, { method: 'POST', signal }),
 }

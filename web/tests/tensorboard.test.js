@@ -20,18 +20,20 @@ function session(id = 'run/a') {
   return { state, runId, scope, scheduled }
 }
 
-test('TensorBoard opens only on demand, exports the selected run and waits for iframe confirmation', async () => {
+test('TensorBoard opens automatically, filters the selected run and waits for iframe confirmation', async () => {
   const original = globalThis.fetch, calls = []
   globalThis.fetch = async (url, options) => { calls.push({ url, options }); return response({ available: true, url: '/tensorboard/' }) }
   let current
   try {
     current = session()
-    assert.equal(calls.length, 0)
-    current.state.expanded.value = true
     await flush()
     assert.deepEqual(calls.map(call => call.url), ['/api/tensorboard/status', '/api/runs/run%2Fa/tensorboard'])
     assert.equal(calls[1].options.method, 'POST')
-    assert.equal(current.state.frameUrl.value, '/tensorboard/')
+    const filter = new RegExp(new URL(current.state.frameUrl.value, 'http://localhost').searchParams.get('runFilter'))
+    assert.ok(filter.test('run/a'))
+    assert.ok(filter.test('run/a\\nodes\\client1'))
+    assert.equal(filter.test('run/a-other'), false)
+    assert.equal(new URL(current.state.frameUrl.value, 'http://localhost').searchParams.get('smoothing'), '0')
     assert.equal(current.state.frameLoaded.value, false)
     current.state.confirmFrame(true)
     assert.equal(current.state.frameLoaded.value, true)
@@ -67,7 +69,7 @@ test('a stale unavailable status still allows a sync to recover the TensorBoard 
   try {
     current = session(); current.state.expanded.value = true
     await flush()
-    assert.equal(current.state.frameUrl.value, '/tensorboard/')
+    assert.match(current.state.frameUrl.value, /^\/tensorboard\/\?smoothing=0&runFilter=/)
     assert.equal(current.state.syncedRun.value, 'run/a')
     assert.equal(current.state.frameLoaded.value, false)
   } finally { current?.scope.stop(); globalThis.fetch = original }
@@ -90,7 +92,7 @@ test('switching run or disposing cancels old work and ignores late responses', a
     resolveOld(response({ available: false, reason: '旧实验错误' }))
     await flush()
     assert.equal(current.state.syncedRun.value, 'new')
-    assert.equal(current.state.frameUrl.value, '/tensorboard/')
+    assert.match(current.state.frameUrl.value, /^\/tensorboard\/\?smoothing=0&runFilter=/)
     current.state.expanded.value = false
     assert.equal(current.scheduled.size, 0)
     assert.equal(current.state.frameUrl.value, '')

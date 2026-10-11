@@ -1,0 +1,113 @@
+/* Local fonts only. Keep native charts, user preferences, and layout controls. */
+html[lang="zh-CN"] body,
+html[lang="zh-CN"] button,
+html[lang="zh-CN"] input,
+html[lang="zh-CN"] select {
+  font-family: Roboto, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+}
+html[lang="zh-CN"] scalar-card tb-truncated-path.tag,
+html[lang="zh-CN"] scalar-card-component tb-truncated-path.tag {
+  letter-spacing: normal;
+}
+html[lang="zh-CN"] scalar-card-data-table th,
+html[lang="zh-CN"] scalar-card-data-table tb-data-table-header-cell,
+html[lang="zh-CN"] scalar-card-component .tooltip th {
+  white-space: nowrap;
+  word-break: keep-all;
+}
+/* Keep global test accuracy and loss first in the native metric groups. */
+html[lang="zh-CN"] metrics-card-groups-component {
+  display: flex;
+  flex-direction: column;
+}
+html[lang="zh-CN"] metrics-card-groups-component > .card-group {
+  flex-shrink: 0;
+}
+html[lang="zh-CN"] metrics-card-groups-component > .card-group:has(
+  > metrics-card-group-toolbar .group-title[title="evaluation"]
+) {
+  order: -1;
+}
+html[lang="zh-CN"] .card-group > .dgflow-evaluation-legend {
+  display: none;
+  margin: 0;
+  padding: 8px 16px;
+  font-size: 12px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  opacity: .78;
+}
+html[lang="zh-CN"] .card-group:has(> metrics-card-grid .card-grid) > .dgflow-evaluation-legend {
+  display: block;
+}
+@media (max-width: 720px) {
+  html[lang="zh-CN"] metrics-main-view,
+  html[lang="zh-CN"] metrics-main-view-component {
+    min-width: 0;
+    position: relative;
+  }
+  html[lang="zh-CN"] metrics-main-view-component > .toolbar {
+    height: auto;
+    min-height: 48px;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+  }
+  html[lang="zh-CN"] metrics-main-view-component > .toolbar metrics-tag-filter {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  html[lang="zh-CN"] metrics-main-view-component > .toolbar .right-items {
+    border-left: 0;
+    margin-left: auto;
+    padding-left: 0;
+  }
+  html[lang="zh-CN"] metrics-main-view-component > .split-content {
+    position: relative;
+    min-height: 0;
+  }
+  html[lang="zh-CN"] metrics-main-view-component > .split-content > .main {
+    min-width: 0;
+  }
+  /* Native desktop cards have a minimum grid width. Allow a single column to
+     fit beside the experiment list instead of clipping charts on small screens. */
+  html[lang="zh-CN"] metrics-main-view-component .card-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  html[lang="zh-CN"] metrics-main-view-component .card-space,
+  html[lang="zh-CN"] metrics-main-view-component card-view,
+  html[lang="zh-CN"] metrics-main-view-component card-view-component,
+  html[lang="zh-CN"] metrics-main-view-component scalar-card,
+  html[lang="zh-CN"] metrics-main-view-component scalar-card-component {
+    min-width: 0 !important;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  /* Native Angular still owns open/close. The existing panel becomes a
+     scrollable overlay rather than consuming the chart's remaining width. */
+  html[lang="zh-CN"] metrics-main-view-component > .split-content > .sidebar {
+    position: absolute;
+    inset: 0 0 0 auto;
+    z-index: 10;
+    width: min(280px, 100%);
+    max-width: 100%;
+    flex: none;
+    box-sizing: border-box;
+    box-shadow: -3px 0 12px rgb(0 0 0 / 18%);
+    overflow: auto;
+  }
+  html[lang="zh-CN"] metrics-main-view-component > .split-content > .sidebar > .header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: inherit;
+  }
+  html[lang="zh-CN"] tb-dashboard-layout:has(> metrics-main-view) > nav.sidebar {
+    min-width: 128px !important;
+    max-width: 40vw !important;
+  }
+  html[lang="zh-CN"] tb-dashboard-layout .full-screen-toggle {
+    opacity: 1;
+  }
+}

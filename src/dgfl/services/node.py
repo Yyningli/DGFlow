@@ -30,9 +30,12 @@ from dgfl.transport.chunking import (
 )
 from dgfl.transport.security import Identity, atomic_bytes, read_bytes
 
+from .telemetry import NodeTelemetry
+
 #: Largest single RPC body accepted. Chunked submissions stay below this.
 MESSAGE_LIMIT = 64 * 1024 * 1024
 CACHE_SUFFIX = '.bin'
+TRAIN_MONITOR_FIELDS = frozenset(('training_metrics', 'metrics_eval_s', 'metrics_callback_s'))
 
 
 def training_backends():
@@ -103,12 +106,14 @@ def create_node_app(node_id, runtime):
     folder = runtime / 'nodes' / node_id
     assembler = ChunkAssembler(directory=folder / 'rpc-uploads', file_mode=True)
     responses = ResponseStore(folder / 'rpc-downloads')
+    telemetry = NodeTelemetry(node_id, runtime)
 
     @asynccontextmanager
     async def lifespan(_app):
         try:
             yield
         finally:
+            telemetry.close()
             with lock:
                 assembler.close()
                 responses.cleanup_expired()
@@ -118,6 +123,7 @@ def create_node_app(node_id, runtime):
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     app.state.chunk_assembler = assembler
     app.state.response_store = responses
+    app.state.telemetry = telemetry
     worker = None
 
     def encode_reply(result, context, fingerprint):
@@ -158,6 +164,7 @@ def create_node_app(node_id, runtime):
             result = {'node_id': node_id, 'status': 'online', 'backend': 'BLS12-381/arkworks',
                       'capabilities': {'lego_norm_v1': available(), 'compute':compute_capabilities(),
                                        'datasets':['mnist','cifar10'],
+                                       'node_telemetry':True,
                                        'training_backends':training_backends(),
                                        'embedded_aggregate_certificates':node_id.startswith('authority'),
                                        'compact_aggregate_materials':node_id.startswith(('authority','aggregator')),
@@ -169,6 +176,18 @@ def create_node_app(node_id, runtime):
                                        'batched_client_keys':node_id.startswith('authority')},
                       'native':loaded_native_evidence()}
             return identity.seal('coordinator', 'rpc-response', result, context)
+        if data['action'] in ('telemetry_start', 'telemetry_read', 'telemetry_stop'):
+            # Authentication above is shared with role operations; telemetry
+            # uses its own cache lock and never waits for stateful execution or
+            # creates durable RPC execution guards.
+            try:
+                operation = {'telemetry_start': telemetry.start,
+                             'telemetry_read': telemetry.read,
+                             'telemetry_stop': telemetry.stop}[data['action']]
+                result = operation(data['payload'])
+                return identity.seal('coordinator', 'rpc-response', result, context)
+            except (ValueError, KeyError, TypeError) as exc:
+                raise HTTPException(409, str(exc)) from exc
         fingerprint = binary_digest(data)
         path = runtime / 'nodes' / node_id / 'rpc-cache' / (digest(context) + CACHE_SUFFIX)
         with lock:
@@ -243,7 +262,7 @@ def create_node_app(node_id, runtime):
                     raise ValueError('unknown reserved RPC action')
                 if worker is None:
                     from .roles import RoleWorker
-                    worker = RoleWorker(node_id, runtime, identity)
+                    worker = RoleWorker(node_id, runtime, identity, telemetry)
                 # Persist an execution guard before calling a stateful role.
                 # A interrupted response cannot cause an exact retry to run it
                 # twice, including failures while encoding a large reply.
@@ -252,6 +271,9 @@ def create_node_app(node_id, runtime):
                     atomic_bytes(logical_path, {'action': action, 'total': data['payload']['total'],
                                                'block_hashes': block_hashes, 'pending': True})
                 try:
+                    role_context = payload.get('context', {})
+                    if isinstance(role_context, dict):
+                        telemetry.set_context(role_context.get('task_id'), role_context.get('round_id'), action)
                     result = worker.execute(action, payload)
                 except ImportError as exc:
                     if action == 'train' and payload.get('backend') == 'torch':
@@ -259,6 +281,12 @@ def create_node_app(node_id, runtime):
                         # generic 500 when the explicitly selected backend fails.
                         raise ValueError('PyTorch 训练依赖无法加载，请检查客户端的 PyTorch 安装') from exc
                     raise
+                if action == 'train' and isinstance(result, dict):
+                    # Epochs and observation overhead travel through the
+                    # independent telemetry RPC. Keep the business wire and
+                    # its exact byte counter free of monitoring additions;
+                    # direct RoleWorker callers retain their local diagnostics.
+                    result = {key: value for key, value in result.items() if key not in TRAIN_MONITOR_FIELDS}
                 response, result_record = encode_reply(result, context, fingerprint)
                 if logical_path is not None:
                     atomic_bytes(logical_path, {'action': action, 'total': data['payload']['total'],
