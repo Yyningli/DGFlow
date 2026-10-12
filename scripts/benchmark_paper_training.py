@@ -4,16 +4,16 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from pathlib import Path
 import platform
 import time
+from pathlib import Path
 
 import numpy as np
 import torch
 import torch.nn.functional as functional
 
-from dgfl.training import paper_models
 from dgfl.training import data as training_data
+from dgfl.training import paper_models
 from dgfl.training.data import MNIST_FILES, _checked_archive, _idx
 
 

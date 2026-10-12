@@ -3,6 +3,8 @@
 Optional document tool dependency: reportlab. Windows uses installed SimSun;
 other systems can pass an embeddable TrueType Chinese font with --font.
 No experiments are started and no runtime records are modified.
+--freeze-evidence rebuilds the bundled historical acceptance section only; its
+fixed environment/incident narrative is not a template for current experiments.
 """
 from __future__ import annotations
 
@@ -17,6 +19,9 @@ from pathlib import Path
 from dgfl.experiments.evidence import validate_record, validate_run_id, validate_suite, validate_suite_hash
 
 ROOT=Path(__file__).resolve().parents[1]
+# All formal/full-data/fault records cited by the fixed acceptance narrative were
+# produced by this source snapshot. Do not relabel newer runs with that narrative.
+HISTORICAL_REPORT_SOURCE='ac00368af00ca5356430ef748e849cbb424b3341756cabba664edbb461fa95ad'
 
 
 def load_suite(folder):
@@ -57,8 +62,12 @@ def comparable(a,b):
 
 def evidence_section(folder):
     formal=load_suite(folder/'formal'); full=load_suite(folder/'full-data')
-    lines=['实测主机为 Intel Core i7-14700HX（20 核、28 线程）、约 16 GB 内存，Windows 11。'
-           '本次使用单机 12 角色进程，训练及密码运算均为 CPU。存在后台活动及进程缓存，采用固定顺序，'
+    for record in (*formal.values(),*full.values()):
+        if record.get('evidence',{}).get('implementation',{}).get('source_sha256')!=HISTORICAL_REPORT_SOURCE:
+            raise ValueError('unmatched historical report source; current experiments need a separately reviewed report')
+    lines=['以下为旧逐坐标证明、固定二人批次及三云拓扑的冻结历史验收，不是当前 LegoGroth16 版本的性能。'
+           '历史实测主机为 Intel Core i7-14700HX（20 核、28 线程）、约 16 GB 内存，Windows 11。'
+           '当时使用单机 12 角色进程，训练及密码运算均为 CPU。存在后台活动及进程缓存，采用固定顺序，'
            '以下为该环境的描述性测量，不是独立重复试验的置信区间。','',
            '| 种子 | A/C/D 首轮模型一致 | 首轮准确率 | C 轮时/s | D 轮时/s | C / D 应用层 MiB |',
            '|---|---|---|---|---|---|']
@@ -70,6 +79,8 @@ def evidence_section(folder):
             lines.append(f'| {seed} | 存在未完成首轮，见原始记录 | 不作成功比较 | — | — | — |'); continue
         ar,cr,dr=(x['rounds'][0] for x in (a,c,d))
         equal=ar['model_hash']==cr['model_hash']==dr['model_hash'] and ar['accepted_clients']==cr['accepted_clients']==dr['accepted_clients']
+        if not equal or not ar['round']==cr['round']==dr['round']==1:
+            raise ValueError(f'unmatched first-round results for seed {seed}; no performance comparison published')
         ctimes.append(cr['duration_s']); dtimes.append(dr['duration_s']); cbytes.append(cr['bytes_sent']); dbytes.append(dr['bytes_sent'])
         lines.append(f'| {seed} | {"是" if equal else "否"} | {percentage(dr["accuracy"])} | {cr["duration_s"]:.2f} | {dr["duration_s"]:.2f} | {cr["bytes_sent"]/2**20:.2f} / {dr["bytes_sent"]/2**20:.2f} |')
     if ctimes:
@@ -103,6 +114,8 @@ def evidence_section(folder):
     lines+=['','这些补充场景各只有一个种子，不支持对所有非IID、标签投毒或后门攻击的普遍防御结论。'
             '未被识别的有效证明投毒也如实保留；证明正确不等于训练行为正确。']
     fa=full['plain_full_mnist_42']; fd=full['optimized_full_mnist_42']; comparable(fa,fd)
+    if [r['round'] for r in fa['rounds']]!=[r['round'] for r in fd['rounds']]:
+        raise ValueError('unmatched full-data rounds; refusing a truncated comparison')
     lines+=['','完整 MNIST 实验使用官方 60,000 训练/10,000 测试样本，均匀分给六客户端，种子42。',
             '', '| 轮次 | 全数据明文准确率 | 全数据加密准确率 | 整数模型及批准集合一致 | 加密轮时/s |',
             '|---|---|---|---|---|']
@@ -119,9 +132,11 @@ def evidence_section(folder):
     fault_labels={'one_aggregator_down':'停止一个聚合节点','two_aggregators_down':'停止两个聚合节点','one_client_down':'停止一个客户端'}
     for item in faults['cases']:
         r=json.loads((folder/'faults'/item['run_id']/'result.json').read_text('utf8'))
+        if r.get('evidence',{}).get('implementation',{}).get('source_sha256')!=HISTORICAL_REPORT_SOURCE:
+            raise ValueError('unmatched historical report source in fault evidence')
         lines.append(f'| {fault_labels[item["name"]]} | {len(r["rounds"])} | {r["status"]} | {item["observation"]} |')
     tests=json.loads((folder/'test-summary.json').read_text('utf8'))
-    lines+=['',f'最终自动化验收：{tests["passed"]} 项通过，{tests["skipped"]} 项跳过，{tests["failed"]} 项失败。'
+    lines+=['',f'该历史版本的自动化验收：{tests["passed"]} 项通过，{tests["skipped"]} 项跳过，{tests["failed"]} 项失败。'
             +tests.get('skip_explanation',''),
             '', '正式性能运行前统一重启全部本机角色，运行中冻结协议及训练源码。'
             '随后修复证据导出的恢复与未完成轮统计，以及未返回攻击客户端的提交数口径；'

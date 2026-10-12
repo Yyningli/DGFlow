@@ -9,14 +9,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from pathlib import Path
 import platform
 import statistics
 import sys
 import time
 import uuid
+from pathlib import Path
 
-from benchmark_crypto import directory_sources, directory_wire_source, snapshot_modules, make_authorities, ROOT
+from benchmark_crypto import ROOT, directory_sources, directory_wire_source, make_authorities, snapshot_modules
+
 from dgfl.experiments.runner import implementation_evidence
 from dgfl.transport.binary import packb
 from dgfl.transport.security import atomic_json

@@ -11,12 +11,12 @@ import argparse
 import hashlib
 import importlib.metadata
 import json
-from pathlib import Path
 import platform
 import statistics
 import sys
 import time
 import uuid
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -46,10 +46,13 @@ def main(argv=None):
     if args.native_dir:
         sys.path.insert(0, str(args.native_dir.resolve()))
     sys.path.insert(0, str(ROOT/'src'))
-    from dgfl.crypto import backend as b, lego, protocol as p
-    from dgfl.transport.binary import packb
     import dgfl_native
     from benchmark_crypto import directory_sources, directory_wire_source, snapshot_modules
+
+    from dgfl.crypto import backend as b
+    from dgfl.crypto import lego
+    from dgfl.crypto import protocol as p
+    from dgfl.transport.binary import packb
 
     sources = ['src/dgfl/crypto/'+name+'.py' for name in ('backend', 'ipa', 'compact', 'protocol', 'lego')]
     sources += ['native/dgfl-native/src/'+name+'.rs' for name in ('lib', 'lego', 'sigma')]
