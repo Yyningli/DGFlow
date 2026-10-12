@@ -245,6 +245,48 @@ def test_partial_crash_tail_is_skipped_and_next_event_remains_readable(tmp_path)
     final.close()
 
 
+@pytest.mark.parametrize('payload', [None, [], 1])
+def test_old_cursor_skips_nonmapping_payload_in_damaged_journal(tmp_path, payload):
+    path = tmp_path / 'nodes' / 'client1' / 'telemetry' / 'task' / 'events.jsonl'
+    path.parent.mkdir(parents=True)
+    with path.open('w', encoding='utf8') as stream:
+        for sequence in range(1, 515):
+            row = {'sequence': sequence, 'kind': 'epoch', 'time': '2026-10-11T00:00:00+00:00',
+                   'payload': {**epoch(sequence), 'round_id': 1, 'step': sequence}}
+            if sequence == 2:
+                row['payload'] = payload
+            stream.write(json.dumps(row) + '\n')
+    telemetry = NodeTelemetry('client1', tmp_path)
+    try:
+        result = telemetry.read({'task_id': 'task', 'limit': 4})
+        assert [row['sequence'] for row in result['events']] == [1, 3, 4, 5]
+        assert result['next_cursor'] == 5 and result['more'] is True
+        assert 'error' in result
+    finally:
+        telemetry.close()
+
+
+@pytest.mark.parametrize('timestamp', ['corrupt', '2026-10-11T00:00:00', 'x' * 65])
+@pytest.mark.parametrize('event_count', [3, 515])
+def test_damaged_timestamp_cannot_block_later_telemetry_after_restart(tmp_path, timestamp, event_count):
+    path = tmp_path / 'nodes' / 'client1' / 'telemetry' / 'task' / 'events.jsonl'
+    path.parent.mkdir(parents=True)
+    with path.open('w', encoding='utf8') as stream:
+        for sequence in range(1, event_count + 1):
+            row = {'sequence': sequence, 'kind': 'epoch',
+                   'time': timestamp if sequence == 2 else '2026-10-11T00:00:00+00:00',
+                   'payload': {**epoch(sequence), 'round_id': 1, 'step': sequence}}
+            stream.write(json.dumps(row) + '\n')
+    telemetry = NodeTelemetry('client1', tmp_path)
+    try:
+        result = telemetry.read({'task_id': 'task', 'limit': 2})
+        assert [row['sequence'] for row in result['events']] == [1, 3]
+        assert result['next_cursor'] == 3
+        assert 'error' in result
+    finally:
+        telemetry.close()
+
+
 def test_links_and_junction_attributes_are_rejected(tmp_path, monkeypatch):
     import stat
     from pathlib import Path
@@ -385,4 +427,41 @@ def test_stop_is_bounded_when_hardware_driver_is_stuck(tmp_path, monkeypatch):
     finally:
         release.set()
         assert closed.wait(3)
+        telemetry.close()
+
+
+@pytest.mark.parametrize('next_task', ['task', 'next-task'])
+def test_pending_sampler_cleanup_prevents_overlapping_restart(tmp_path, monkeypatch, next_task):
+    from dgfl.services import telemetry as module
+
+    entered, release = threading.Event(), threading.Event()
+
+    class StuckHardware:
+        def sample(self):
+            entered.set()
+            assert release.wait(5)
+            return {'cpu': {}, 'gpu': {}}
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(module, 'HardwareSampler', StuckHardware)
+    telemetry = NodeTelemetry('authority1', tmp_path)
+    try:
+        telemetry.start({'task_id': 'task', 'collect_machine': True})
+        assert entered.wait(2)
+        sampler = telemetry._active['thread']
+        assert telemetry.stop({'task_id': 'task'})['active'] is False
+        with pytest.raises(ValueError, match='cleanup'):
+            telemetry.start({'task_id': next_task, 'collect_machine': True})
+        # The pending optional probe never prevents training diagnostics.
+        assert telemetry.record_epoch(next_task, 1, 1, epoch())
+        release.set()
+        sampler.join(timeout=3)
+        assert not sampler.is_alive()
+        assert telemetry.start({'task_id': next_task})['active'] is True
+        assert any(row['kind'] == 'resource' for row in wait_event(telemetry, next_task))
+        telemetry.stop({'task_id': next_task})
+    finally:
+        release.set()
         telemetry.close()
