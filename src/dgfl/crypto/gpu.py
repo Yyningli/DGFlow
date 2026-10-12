@@ -222,8 +222,8 @@ class CudaRuntime:
         self.check(self._retain(ct.byref(self.context), self.device), 'CUDA 上下文创建')
         self._context_retained = True
         self.check(self._set(self.context), 'CUDA 上下文选择')
-        ptx = self.compile(major, minor)
-        buffer = ct.create_string_buffer(ptx)
+        cubin = self.compile(major, minor)
+        buffer = ct.create_string_buffer(cubin)
         self.check(self._load(ct.byref(self.module), buffer), 'CUDA 密码内核加载')
         self._module_loaded = True
         for _ in range(2):
@@ -474,7 +474,10 @@ class CudaRuntime:
             contents = [folder.joinpath(name).read_bytes() for name in names]
         except OSError as exc:
             raise GPUUnavailable('GPU 密码内核源文件缺失，请安装包含 CUDA 内核的项目版本') from exc
-        options = [b'--std=c++14', f'--gpu-architecture=compute_{major}{minor}'.encode(),
+        # Compile native machine code for the selected device. A newer NVRTC's
+        # PTX requires a matching driver JIT even within the CUDA 12 family;
+        # CUBIN permits CUDA minor-version compatibility without that JIT.
+        options = [b'--std=c++14', f'--gpu-architecture=sm_{major}{minor}'.encode(),
                    b'--device-as-default-execution-space',b'--Ofast-compile=mid']
         digest = hashlib.sha256(b'\0'.join(contents+options)).hexdigest()
         self.info['kernel_source_sha256'] = hashlib.sha256(b'\0'.join(contents)).hexdigest()
@@ -486,19 +489,19 @@ class CudaRuntime:
         self.info['nvrtc_version'] = f'{version_major.value}.{version_minor.value}'
         cache_key=f'{digest}-sm{major}{minor}-nvrtc{version_major.value}.{version_minor.value}'
         cache_dir=Path(__file__).resolve().parents[3]/'runtime'/'gpu-cache'
-        cache_path=cache_dir/(cache_key+'.ptx')
-        if cache_path.is_file():
+        cache_path=cache_dir/(cache_key+'.cubin')
+        if cache_path.is_file() and 0<cache_path.stat().st_size<64*1024*1024:
             cached=cache_path.read_bytes()
             if cached and len(cached)<64*1024*1024:
-                self.info['ptx_sha256']=hashlib.sha256(cached).hexdigest()
+                self.info['cubin_sha256']=hashlib.sha256(cached).hexdigest()
                 return cached
         create = _bind(nvrtc, 'nvrtcCreateProgram', [ct.POINTER(ct.c_void_p), ct.c_char_p, ct.c_char_p,
                                                    ct.c_int, ct.POINTER(ct.c_char_p), ct.POINTER(ct.c_char_p)])
         compile_program = _bind(nvrtc, 'nvrtcCompileProgram', [ct.c_void_p, ct.c_int, ct.POINTER(ct.c_char_p)])
         log_size = _bind(nvrtc, 'nvrtcGetProgramLogSize', [ct.c_void_p, ct.POINTER(ct.c_size_t)])
         get_log = _bind(nvrtc, 'nvrtcGetProgramLog', [ct.c_void_p, ct.c_void_p])
-        ptx_size = _bind(nvrtc, 'nvrtcGetPTXSize', [ct.c_void_p, ct.POINTER(ct.c_size_t)])
-        get_ptx = _bind(nvrtc, 'nvrtcGetPTX', [ct.c_void_p, ct.c_void_p])
+        cubin_size = _bind(nvrtc, 'nvrtcGetCUBINSize', [ct.c_void_p, ct.POINTER(ct.c_size_t)])
+        get_cubin = _bind(nvrtc, 'nvrtcGetCUBIN', [ct.c_void_p, ct.c_void_p])
         destroy = _bind(nvrtc, 'nvrtcDestroyProgram', [ct.POINTER(ct.c_void_p)])
         program = ct.c_void_p()
         source = b'\n'.join(b'#include "'+name.encode()+b'"' for name in names)
@@ -515,16 +518,18 @@ class CudaRuntime:
                 get_log(program, log)
                 raise GPUUnavailable('CUDA 密码内核编译失败：'+log.value.decode('utf8', 'replace')[-2500:])
             length = ct.c_size_t()
-            self.check(ptx_size(program, ct.byref(length)), 'CUDA 编译结果查询')
+            self.check(cubin_size(program, ct.byref(length)), 'CUDA CUBIN 编译结果查询')
+            if not 0<length.value<64*1024*1024:
+                raise GPUUnavailable('CUDA CUBIN 编译结果大小无效；GPU 任务已停止')
             output = ct.create_string_buffer(length.value)
-            self.check(get_ptx(program, output), 'CUDA 编译结果读取')
-            ptx=output.raw
+            self.check(get_cubin(program, output), 'CUDA CUBIN 编译结果读取')
+            cubin=output.raw
             cache_dir.mkdir(parents=True,exist_ok=True)
             staged=cache_dir/(cache_key+f'.{os.getpid()}.tmp')
-            staged.write_bytes(ptx)
+            staged.write_bytes(cubin)
             os.replace(staged,cache_path)
-            self.info['ptx_sha256']=hashlib.sha256(ptx).hexdigest()
-            return ptx
+            self.info['cubin_sha256']=hashlib.sha256(cubin).hexdigest()
+            return cubin
         finally:
             destroy(ct.byref(program))
 
