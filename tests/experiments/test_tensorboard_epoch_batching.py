@@ -151,3 +151,35 @@ def test_training_accounting_summary_uses_round_axis_without_breaking_live_or_re
     assert [point.step for point in measured['training_round/metrics_eval_s']]==[1]
     assert measured['training_round/metrics_eval_s'][0].value==pytest.approx(.2)
     assert 'training/metrics_eval_s' not in measured
+
+
+@pytest.mark.parametrize('scope', ['nodes/authority1', 'machines/B'])
+@pytest.mark.parametrize('change', ['delete', 'truncate'])
+def test_consumed_journal_recovers_a_removed_or_truncated_scope(tmp_path, scope, change):
+    logs=TensorBoardLogs(tmp_path); record=history()
+    journal(tmp_path)
+    assert logs.sync(record)['available']
+    root=logs.logdir/'batched'
+    for path in (root/scope).glob('events.out.tfevents.*'):
+        if change=='delete': path.unlink()
+        else: path.write_bytes(b'')
+    assert logs.sync(record)['available']
+    assert [(point.step,point.value) for point in scalars(root/'nodes/authority1')['processes/rss_bytes']]==[
+        (0,100.),(1,101.),(2,102.)]
+    assert [(point.step,point.value) for point in scalars(root/'machines/B')['system/cpu_percent']]==[
+        (0,25.),(1,26.),(2,27.)]
+    assert logs.sync(record)['available']
+    assert len(scalars(root/'nodes/authority1')['processes/rss_bytes'])==3
+    assert len(scalars(root/'machines/B')['system/cpu_percent'])==3
+
+
+def test_consumed_journal_recovers_a_scope_after_writer_cache_eviction(tmp_path):
+    logs=TensorBoardLogs(tmp_path,max_cached_runs=1); record=history()
+    journal(tmp_path)
+    assert logs.sync(record)['available']
+    root=logs.logdir/'batched'
+    for path in (root/'nodes/authority1').glob('events.out.tfevents.*'):
+        path.unlink()
+    assert logs.sync(record)['available']
+    assert [point.step for point in scalars(root/'nodes/authority1')['processes/rss_bytes']]==[0,1,2]
+    assert len(scalars(root/'machines/B')['system/cpu_percent'])==3

@@ -309,3 +309,76 @@ def test_final_save_failure_stays_failed_in_memory_and_releases_admission(experi
     assert all(rpc.closed for rpc in rpcs)
     monkeypatch.setattr(runner.threading, 'Thread', PendingThread)
     assert manager.start(record['config'])['status'] == 'queued'
+
+
+@pytest.mark.parametrize('stage', ['snapshot', 'final_sample'])
+def test_node_monitor_failure_preserves_training_and_always_stops_sampler(experiment, monkeypatch, stage):
+    manager, record, _ = experiment
+    node_monitors = []
+    call = FakeRPC.call
+
+    def telemetry_health(self, node, action, payload=None, **kwargs):
+        reply = call(self, node, action, payload, **kwargs)
+        if action == 'health':
+            reply['capabilities']['node_telemetry'] = True
+        return reply
+
+    class NodeMonitor:
+        def __init__(self, *args, **kwargs):
+            self.finished = False
+            node_monitors.append(self)
+
+        def start(self):
+            pass
+
+        def snapshot(self):
+            if stage == 'snapshot':
+                raise OSError('node snapshot unavailable')
+            return {'nodes': [], 'machines': [], 'summary': {}}
+
+        def observe_training(self, *args):
+            pass
+
+        def observe_local(self, sample):
+            raise OSError('final sample log unavailable')
+
+        def finish(self):
+            self.finished = True
+            return self.snapshot()
+
+    class Monitor(StubMonitor):
+        def finish(self):
+            self.finished = True
+            return {'hardware': {'samples': [{'sample_index': 1}]}}
+
+    monkeypatch.setattr(FakeRPC, 'call', telemetry_health)
+    monkeypatch.setattr(runner, 'RunNodeMonitor', NodeMonitor)
+    monkeypatch.setattr(runner, 'LocalProcessMonitor', Monitor)
+    manager._run(record)
+    assert record['status'] == 'completed'
+    assert record['error'] is None
+    assert record['summary']['completed_rounds'] == 1
+    assert node_monitors[0].finished
+    assert 'unavailable' in record['evidence']['node_monitoring_error']
+    persisted = json.loads((manager.runtime / 'results' / record['run_id'] / 'result.json').read_text('utf8'))
+    assert persisted['status'] == 'completed'
+    assert manager.active is None
+
+
+def test_monitor_snapshot_failure_does_not_hide_experiment_or_saved_evidence(experiment):
+    manager, record, _ = experiment
+    manager.records[record['run_id']] = record
+    previous = {'nodes': [], 'machines': [], 'summary': {'events_received': 4}}
+    record['evidence']['node_monitoring'] = previous
+
+    class BrokenMonitor:
+        def snapshot(self):
+            raise OSError('node snapshot unavailable')
+
+    manager._node_monitors[record['run_id']] = BrokenMonitor()
+    detail = manager.snapshot(record['run_id'])
+    assert detail['evidence']['node_monitoring'] == previous
+    assert 'node snapshot unavailable' in detail['evidence']['node_monitoring_error']
+    assert manager.monitor_snapshot(record['run_id'])['summary']['events_received'] == 4
+    detail['evidence']['node_monitoring']['summary']['events_received'] = 0
+    assert record['evidence']['node_monitoring'] == previous

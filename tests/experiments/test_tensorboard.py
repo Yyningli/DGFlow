@@ -133,6 +133,70 @@ def test_torn_event_tail_is_preserved_and_new_events_remain_readable(tmp_path):
     assert [point.step for point in read_scalars(path.parent)['system/cpu_percent']] == [7, 8]
 
 
+@pytest.mark.parametrize('change', ['delete', 'truncate', 'replace'])
+def test_cached_export_recovers_points_after_event_file_is_removed_or_replaced(tmp_path, change):
+    logs = logs_class()(tmp_path)
+    data = record()
+    assert logs.sync(data)['available']
+    path = next((logs.logdir / data['run_id']).glob('events.out.tfevents.*'))
+    if change == 'delete':
+        path.unlink()
+    elif change == 'truncate':
+        path.write_bytes(b'')
+    else:
+        # Replace the inode with a different valid stream under the same name.
+        other = logs_class()(tmp_path / 'replacement')
+        assert other.sync({'run_id': 'other', 'initial_metrics': {'accuracy': .5}})['available']
+        replacement = next((other.logdir / 'other').glob('events.out.tfevents.*'))
+        replacement.replace(path)
+    assert logs.sync(data)['available']
+    scalars = read_scalars(path.parent)
+    expected_accuracy = [(0, .5), (1, .75)] if change == 'replace' else [(0, .125), (1, .75)]
+    assert [(item.step, item.value) for item in scalars['evaluation/accuracy']] == expected_accuracy
+    assert [(item.step, item.value) for item in scalars['evaluation/cross_entropy']] == [(0, 2.5), (1, .875)]
+    assert [(item.step, item.value) for item in scalars['system/cpu_percent']] == [(7, 25.)]
+    assert logs.sync(data)['available']
+    assert len(read_scalars(path.parent)['evaluation/accuracy']) == 2
+
+
+@pytest.mark.parametrize('rewritten_steps, expected', [
+    ([2], [(1, .75), (2, .75)]),
+    ([2, 3], [(1, .75), (2, .75), (3, .75)]),
+])
+def test_cached_export_rescans_in_place_event_rewrite(tmp_path, rewritten_steps, expected):
+    import os
+
+    from tensorboard.backend.event_processing.event_file_loader import RawEventFileLoader
+    from tensorboard.compat.proto.event_pb2 import Event
+    from tensorboard.summary.writer.record_writer import RecordWriter
+
+    logs = logs_class()(tmp_path)
+    data = {'run_id': 'rewritten', 'rounds': [{'round': 1, 'accuracy': .75}]}
+    assert logs.sync(data)['available']
+    path = next((logs.logdir / data['run_id']).glob('events.out.tfevents.*'))
+    before = path.stat()
+    events = [Event.FromString(raw) for raw in RawEventFileLoader(str(path)).Load()]
+    with path.open('wb') as stream:
+        writer = RecordWriter(stream)
+        for event in events:
+            if event.summary.value:
+                for step in rewritten_steps:
+                    event.step = step
+                    writer.write(event.SerializeToString())
+            else:
+                writer.write(event.SerializeToString())
+        writer.flush()
+    assert path.stat().st_ino == before.st_ino
+    if len(rewritten_steps) == 1:
+        assert path.stat().st_size == before.st_size
+    else:
+        assert path.stat().st_size > before.st_size
+    os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns + 1_000_000_000))
+    assert logs.sync(data)['available']
+    points = read_scalars(path.parent)['evaluation/accuracy']
+    assert sorted((item.step, item.value) for item in points) == expected
+
+
 def test_missing_dependency_has_a_friendly_status_and_never_raises(tmp_path, monkeypatch):
     import builtins
     real_import = builtins.__import__
