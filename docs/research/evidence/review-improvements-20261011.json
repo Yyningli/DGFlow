@@ -1,0 +1,1596 @@
+{
+  "authority_gpu_self_test": {
+    "authority1": {
+      "accelerated_operations": [
+        "ec_batch",
+        "gt_exp_batch",
+        "gt_subgroup_batch"
+      ],
+      "available": true,
+      "backend": "cuda_nvrtc",
+      "compute_capability": "8.9",
+      "cubin_sha256": "8879ef3f5f656bd99dc5d42548253558d9a2e182ea99567c42d0354880640e8b",
+      "device_index": 0,
+      "device_resources": {
+        "errors": {},
+        "max_threads_per_multiprocessor": 1536,
+        "multiprocessor_count": 36,
+        "registers_per_multiprocessor": 65536
+      },
+      "driver_version": 12070,
+      "kernel_build_sha256": "7a87ed1ce7755031e8754d084beb692fb7f7e24f048cec42b45529c0b77ef5ce",
+      "kernel_resources": {
+        "dgfl_gt_pow_batch": {
+          "errors": {},
+          "function_name": "dgfl_gt_pow_batch",
+          "local_bytes_per_thread": 18568,
+          "max_threads_per_block": 256,
+          "num_registers": 255,
+          "static_shared_bytes": 0
+        },
+        "dgfl_gt_validate": {
+          "errors": {},
+          "function_name": "dgfl_gt_validate",
+          "local_bytes_per_thread": 17352,
+          "max_threads_per_block": 256,
+          "num_registers": 255,
+          "static_shared_bytes": 0
+        },
+        "dgflow_g1_msm": {
+          "errors": {},
+          "function_name": "dgflow_g1_msm",
+          "local_bytes_per_thread": 7016,
+          "max_threads_per_block": 384,
+          "num_registers": 166,
+          "static_shared_bytes": 0
+        },
+        "dgflow_g1_verify_polynomial": {
+          "errors": {},
+          "function_name": "dgflow_g1_verify_polynomial",
+          "local_bytes_per_thread": 10504,
+          "max_threads_per_block": 384,
+          "num_registers": 166,
+          "static_shared_bytes": 0
+        }
+      },
+      "kernel_source_sha256": "8cd06bbd67406ef8a54558fa53236518f711fe71b97e6ba504577422d676be45",
+      "memory_bytes": 8585216000,
+      "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+      "nvrtc_version": "12.9",
+      "reason": "",
+      "verified": true
+    },
+    "authority2": {
+      "accelerated_operations": [
+        "ec_batch",
+        "gt_exp_batch",
+        "gt_subgroup_batch"
+      ],
+      "available": true,
+      "backend": "cuda_nvrtc",
+      "compute_capability": "8.9",
+      "cubin_sha256": "8879ef3f5f656bd99dc5d42548253558d9a2e182ea99567c42d0354880640e8b",
+      "device_index": 0,
+      "device_resources": {
+        "errors": {},
+        "max_threads_per_multiprocessor": 1536,
+        "multiprocessor_count": 36,
+        "registers_per_multiprocessor": 65536
+      },
+      "driver_version": 12070,
+      "kernel_build_sha256": "7a87ed1ce7755031e8754d084beb692fb7f7e24f048cec42b45529c0b77ef5ce",
+      "kernel_resources": {
+        "dgfl_gt_pow_batch": {
+          "errors": {},
+          "function_name": "dgfl_gt_pow_batch",
+          "local_bytes_per_thread": 18568,
+          "max_threads_per_block": 256,
+          "num_registers": 255,
+          "static_shared_bytes": 0
+        },
+        "dgfl_gt_validate": {
+          "errors": {},
+          "function_name": "dgfl_gt_validate",
+          "local_bytes_per_thread": 17352,
+          "max_threads_per_block": 256,
+          "num_registers": 255,
+          "static_shared_bytes": 0
+        },
+        "dgflow_g1_msm": {
+          "errors": {},
+          "function_name": "dgflow_g1_msm",
+          "local_bytes_per_thread": 7016,
+          "max_threads_per_block": 384,
+          "num_registers": 166,
+          "static_shared_bytes": 0
+        },
+        "dgflow_g1_verify_polynomial": {
+          "errors": {},
+          "function_name": "dgflow_g1_verify_polynomial",
+          "local_bytes_per_thread": 10504,
+          "max_threads_per_block": 384,
+          "num_registers": 166,
+          "static_shared_bytes": 0
+        }
+      },
+      "kernel_source_sha256": "8cd06bbd67406ef8a54558fa53236518f711fe71b97e6ba504577422d676be45",
+      "memory_bytes": 8585216000,
+      "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+      "nvrtc_version": "12.9",
+      "reason": "",
+      "verified": true
+    }
+  },
+  "cleanup": {
+    "missing": [],
+    "refused": [],
+    "stopped": [
+      "authority1",
+      "authority2",
+      "aggregator1",
+      "aggregator2",
+      "client1",
+      "client2"
+    ]
+  },
+  "dataset": "real MNIST",
+  "gpu_self_test": {
+    "accelerated_operations": [
+      "ec_batch",
+      "gt_exp_batch",
+      "gt_subgroup_batch"
+    ],
+    "available": true,
+    "backend": "cuda_nvrtc",
+    "compute_capability": "8.9",
+    "cubin_sha256": "8879ef3f5f656bd99dc5d42548253558d9a2e182ea99567c42d0354880640e8b",
+    "device_index": 0,
+    "device_resources": {
+      "errors": {},
+      "max_threads_per_multiprocessor": 1536,
+      "multiprocessor_count": 36,
+      "registers_per_multiprocessor": 65536
+    },
+    "driver_version": 12070,
+    "kernel_build_sha256": "7a87ed1ce7755031e8754d084beb692fb7f7e24f048cec42b45529c0b77ef5ce",
+    "kernel_resources": {
+      "dgfl_gt_pow_batch": {
+        "errors": {},
+        "function_name": "dgfl_gt_pow_batch",
+        "local_bytes_per_thread": 18568,
+        "max_threads_per_block": 256,
+        "num_registers": 255,
+        "static_shared_bytes": 0
+      },
+      "dgfl_gt_prepare_public_table": {
+        "errors": {},
+        "function_name": "dgfl_gt_prepare_public_table",
+        "local_bytes_per_thread": 15416,
+        "max_threads_per_block": 256,
+        "num_registers": 255,
+        "static_shared_bytes": 0
+      },
+      "dgfl_gt_product_powers_batch": {
+        "errors": {},
+        "function_name": "dgfl_gt_product_powers_batch",
+        "local_bytes_per_thread": 19336,
+        "max_threads_per_block": 256,
+        "num_registers": 255,
+        "static_shared_bytes": 0
+      },
+      "dgfl_gt_validate": {
+        "errors": {},
+        "function_name": "dgfl_gt_validate",
+        "local_bytes_per_thread": 17352,
+        "max_threads_per_block": 256,
+        "num_registers": 255,
+        "static_shared_bytes": 0
+      },
+      "dgfl_gt_verify_many": {
+        "errors": {},
+        "function_name": "dgfl_gt_verify_many",
+        "local_bytes_per_thread": 21096,
+        "max_threads_per_block": 256,
+        "num_registers": 255,
+        "static_shared_bytes": 0
+      },
+      "dgflow_g1_msm": {
+        "errors": {},
+        "function_name": "dgflow_g1_msm",
+        "local_bytes_per_thread": 7016,
+        "max_threads_per_block": 384,
+        "num_registers": 166,
+        "static_shared_bytes": 0
+      },
+      "dgflow_g1_verify_polynomial": {
+        "errors": {},
+        "function_name": "dgflow_g1_verify_polynomial",
+        "local_bytes_per_thread": 10504,
+        "max_threads_per_block": 384,
+        "num_registers": 166,
+        "static_shared_bytes": 0
+      },
+      "dgflow_g1_verify_polynomial_many": {
+        "errors": {},
+        "function_name": "dgflow_g1_verify_polynomial_many",
+        "local_bytes_per_thread": 10504,
+        "max_threads_per_block": 384,
+        "num_registers": 166,
+        "static_shared_bytes": 0
+      }
+    },
+    "kernel_source_sha256": "8cd06bbd67406ef8a54558fa53236518f711fe71b97e6ba504577422d676be45",
+    "memory_bytes": 8585216000,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "nvrtc_version": "12.9",
+    "reason": "",
+    "verified": true
+  },
+  "plain_encrypted_models_equal": true,
+  "purpose": "correctness acceptance, not a performance benchmark",
+  "runs": [
+    {
+      "accepted_clients": [
+        [
+          "client1",
+          "client2"
+        ],
+        [
+          "client1",
+          "client2"
+        ]
+      ],
+      "compute_device": "cpu",
+      "curves": {
+        "global": {
+          "evaluation/accuracy": [
+            {
+              "step": 0,
+              "value": 0.029999999329447746
+            },
+            {
+              "step": 1,
+              "value": 0.6100000143051147
+            },
+            {
+              "step": 2,
+              "value": 0.6399999856948853
+            }
+          ],
+          "evaluation/cross_entropy": [
+            {
+              "step": 0,
+              "value": 2.3031277656555176
+            },
+            {
+              "step": 1,
+              "value": 2.053067207336426
+            },
+            {
+              "step": 2,
+              "value": 1.8535869121551514
+            }
+          ]
+        },
+        "nodes/client1": {
+          "evaluation/accuracy": [
+            {
+              "step": 1,
+              "value": 0.6000000238418579
+            },
+            {
+              "step": 2,
+              "value": 0.6349999904632568
+            }
+          ],
+          "evaluation/cross_entropy": [
+            {
+              "step": 1,
+              "value": 2.0257792472839355
+            },
+            {
+              "step": 2,
+              "value": 1.809005856513977
+            }
+          ]
+        },
+        "nodes/client2": {
+          "evaluation/accuracy": [
+            {
+              "step": 1,
+              "value": 0.5683333277702332
+            },
+            {
+              "step": 2,
+              "value": 0.721666693687439
+            }
+          ],
+          "evaluation/cross_entropy": [
+            {
+              "step": 1,
+              "value": 2.0035157203674316
+            },
+            {
+              "step": 2,
+              "value": 1.7825548648834229
+            }
+          ]
+        }
+      },
+      "implementation": {
+        "dependencies": {
+          "cryptography": "50.0.2",
+          "dgfl-native": "0.2.0",
+          "fastapi": "0.142.2",
+          "httpx": "0.28.1",
+          "numpy": "2.5.3",
+          "py-arkworks-bls12381": "0.5.0"
+        },
+        "machine": "AMD64",
+        "native": {
+          "build_input_sha256": {
+            "native/dgfl-native/Cargo.lock": "67df2010ebbf83d6a300f0b174128f493ab35f86b699b294c0ca2583e25afaa4",
+            "native/dgfl-native/Cargo.toml": "dbb0bdde924fad97799b21ae7b39906428ed6aace0119aeb1d382e103f087c60",
+            "native/dgfl-native/pyproject.toml": "400350c74a67afd4401cb7e9eb3a53c3f51466ee59371e6f222682856f789df2",
+            "native/dgfl-native/src/aggregate.rs": "b62cbdefeec2f252734320cbd5cfc63887b265847e3759478d06c768f55319ad",
+            "native/dgfl-native/src/batch.rs": "42c7430e48421c99422915bfba2b140d7a5bc2de1e430db9c1f9042bf4337464",
+            "native/dgfl-native/src/lego.rs": "8bb7bf02ef4700086207d5e4e70ca1ba7c80e8f56260d19bd7843c9eb80004c3",
+            "native/dgfl-native/src/lib.rs": "f9f5879163abac7904f0966af5d92547840a9f43a9dbd9fe0de155ade984f7e3",
+            "native/dgfl-native/src/linked.rs": "cf87ca753be29e21a40b74bbba62290a4a2b397404da57c32d1ec474a217542c",
+            "native/dgfl-native/src/sigma.rs": "e72b91d211f42df256e33262da8aa146643cc30a5ab5e3e72f1969ab817f50b7"
+          },
+          "enabled": true,
+          "evidence_scope": "controller imported extension paths and their current on-disk digests, plus checked loaded APIs; installed metadata does not attest node imports or an in-memory image after file replacement",
+          "installed_artifact_sha256": {
+            "dgfl_native/dgfl_native.cp312-win_amd64.pyd": "d15b2527762276de34ac40c6eb52c7b0f79c4220dfa3f3ae4afdf4928018ffff"
+          },
+          "loaded_artifact_sha256": {
+            "dgfl_native.dgfl_native": "d15b2527762276de34ac40c6eb52c7b0f79c4220dfa3f3ae4afdf4928018ffff"
+          },
+          "loaded_capabilities": {
+            "aggregate_verification_native": true,
+            "checked_gpu_point_batch": true,
+            "ciphertext_sum_pairing_batch": true,
+            "cloud_key_pairing_batch": true,
+            "lego_norm_v1": true
+          },
+          "package_version": "0.2.0"
+        },
+        "platform": "Windows",
+        "python": "3.12.14",
+        "source_files": {
+          "__init__.py": "89a4f61300fe9773e510c2d9d8a19deedcb7ca42ca3a0664e6894b54f49b2f47",
+          "cli.py": "d769b1a10947480ba7dc1975c0f158d200c17abc1506c63748d65735b8a80425",
+          "crypto/__init__.py": "f59f263384f8d73d5b3c55a3f1a298297ce6fc272749194684d5787f92cc412c",
+          "crypto/backend.py": "63d52b9294072fb959a65d96ca022c4676cbe59e8cc13be02eb6e8c7b7ed236c",
+          "crypto/compact.py": "fce68bdbc56fbc06ec96d8e913a6df028801ebdfad448c21040e67242809a73d",
+          "crypto/cuda_scheduler.py": "d3cc0d02763dfa15349081519bf809964b69b8121bc20ec937dfb1ee2e338a92",
+          "crypto/gpu.py": "9a5ae5741b28e817f7650bc151e696c328522b212a432169a34283f82fab2c66",
+          "crypto/gpu_profile.py": "0252c11731e22d72ca10fc0c9d359dde55d2aedd1eebd1f9715781ab1178941f",
+          "crypto/ipa.py": "23b4a73e8539abb7be210cd44659acbf00820a71dfcea329f45062fa9911a79e",
+          "crypto/lego.py": "4634d2daff08a35b92e266aa49c50417972d9a313ac3c4a3c085b5b12f532768",
+          "crypto/lego_registry.py": "061a187c3781ea80612dabbf45d84d1b636a9d2b5b3fc60b91e0ba7e7ccb717e",
+          "crypto/linkage.py": "2d6980806fdc74ef98e1fa89a27d6b827686ae21a0c648e360ec4384965f2654",
+          "crypto/protocol.py": "6917abded47a9954aa2c0e2d0d3046afe0ad1f6d0fddb9fef5a7484915574837",
+          "deployment.py": "462c0c77fec5ecff24b15216395090946785964b4ee4db13efe2d5e964296408",
+          "experiments/__init__.py": "21c3bd2568eb6d313fd34ff1b29a93e5c3ab63499fbab7012e5babc2b1b35212",
+          "experiments/evidence.py": "1e71e53473974c0c3b3f73ac22101c716eac98c6d33aa97e73340e432fce2ec3",
+          "experiments/hardware.py": "eda73e48e902d9f848a409ed5d5140fa4b8922e8b06c2766ed1afcb5c3d12883",
+          "experiments/monitoring.py": "b383b34d2808005a17034bf40901e49b589ca91371df020ab69b1a588391851e",
+          "experiments/resources.py": "79c24734762f8be57a488b6d55ded172b7b47140b1529c3c8403d4e42d90fdbf",
+          "experiments/runner.py": "9234727a8466dd23bf95e42070a0ab19f7ca30b452d88a501d200138a7fdacc4",
+          "experiments/telemetry.py": "3006c17e4d8eb5af2961e305f8d4f691f504e40598fff08e987126b9c4690f3b",
+          "experiments/tensorboard.py": "2334cde652395159525f0f795f58c8277f498a22c7793797b725b3b2e767f3cf",
+          "services/__init__.py": "776b05daa5aa1a7acc4c9101e93a2d3116ed601da2859c5bdb76676c8634f510",
+          "services/control.py": "360cc1dfaefb6d4d83c27dff3af6dc332ec92ef60fc476f75ddc746541137df2",
+          "services/node.py": "5e16ec8e3c463e81cc0865ff8ccb316b4218b2c10e0f11941c02bfbc1605b0d8",
+          "services/roles.py": "3dc4aa944258224d8cc1fe8982c0ad40fc00fa1e2d1ccd41bf3a9ee3d0ca4011",
+          "services/telemetry.py": "94075f5e12df7b8f15081ca01c7ba88f669bcad27ec46824290bbe63d0729778",
+          "services/tensorboard.py": "52af3361c7485acb6da13a5e0e48dedd5a894f50434d3ce6503f132df5cac324",
+          "services/tensorboard_metrics.py": "602c5691d3e63da6694a6050586b3103408e256782dfba9a200c4cf6ab92498a",
+          "system_info.py": "b44ee9ded00aedb29428b219a9016fae8982a9de45925aed7889c04a68bb981e",
+          "topology.py": "c44f3bae214b37889ab7c4edb43f9828f18fa19f02c5d6774ba2aac51ee9bf0f",
+          "training/__init__.py": "e0940d304da660740af9c5ac15b4bf52c336cc5e0b342cecae325214fe4bfcf3",
+          "training/cifar10.py": "1db5b9fbbdf350088612fa85015e3bd7e06050aeffed90fae9b55f9c4941ea7b",
+          "training/data.py": "6f736c5e46e1be11305d5425d47f79efa6a17c0f7a2af095d8595363c8a8eb1b",
+          "training/datasets.py": "4cf0fb14f6cb4c6f82d5cc96d0c39f4fdc207a14ec5d1a2dcc615282a3bfcf19",
+          "training/model.py": "1e6eaf84563b40a6cc1ed00110adf102fd79bd75396a967d687be2e942e2f581",
+          "training/paper_models.py": "0a8663d008822609af885fb6b66b43794ef8e309bc54c877034b0f11e85b7b01",
+          "transport/__init__.py": "ba7699d32e3cef920d73874f8cc544e4e9cdb258957f6d7df984101d7ffd966c",
+          "transport/binary.py": "7ccf2f75fe07ad4849973a2f92ec9292fee8205b6db960ae0efdfadd1652aa12",
+          "transport/chunking.py": "dff3542bd14dbeb70597e2ab4f70dfbdb1d75139cfa367f5ad3ec404266b05c2",
+          "transport/client.py": "847bedda3d8af206aa3d34e44fc6c3cd85e88ddceca0d21601d9dc8c621dda6c",
+          "transport/security.py": "69d3c21b9af7e4f31e650f37be3c636b6c6cc59194006541a0457ae4b9ba2efc",
+          "validation/__init__.py": "49a5acd017102635116f7594843dfb044a81cf6134a303fda92c7b2b2383829e",
+          "validation/policy.py": "c0e8f1ff8c7ea8931f697fd0a22200634654f6166dda561a1d8d936a4d43f3ef"
+        },
+        "source_sha256": "88b8503b55225fbfcb8ce64c8dd4db1ab200e0d1174af5a6b4c8b1a2dd318e99"
+      },
+      "mode": "plain",
+      "model_hashes": [
+        "204beeab37af06a19a9f2f0195af74d6288ce1fe6a66eac55405ad63e9efcdcc",
+        "3d6f293b37814f68fd6097ab6adcc59a585cfda5f596d349f96118b28cfd7a10"
+      ],
+      "node_monitoring": {
+        "bytes_sent": 17550,
+        "cleanup_complete": true,
+        "collection_failures": 0,
+        "events_missing": 0,
+        "events_received": 24,
+        "last_error": null,
+        "local_machine_samples_timed": 1,
+        "local_machine_sampling_s": 0.9220000000204891,
+        "log_failures": 0,
+        "metrics_eval_s": 0.001561399782076478,
+        "node_samples_timed": 12,
+        "node_sampling_s": 0.12295949994586408,
+        "training_rounds": {
+          "1": {
+            "clients_recorded": 2,
+            "metrics_callback_s": 0.013807600364089012,
+            "metrics_eval_s": 0.000745199853554368,
+            "training_s": 0.002371399663388729
+          },
+          "2": {
+            "clients_recorded": 2,
+            "metrics_callback_s": 0.012990300077944994,
+            "metrics_eval_s": 0.00081619992852211,
+            "training_s": 0.0025355000980198383
+          }
+        }
+      },
+      "run_id": "ec77c6d864664f0d956b1f3069caee86",
+      "status": "completed",
+      "summary": {
+        "accuracy": 0.64,
+        "bytes_sent": 31348,
+        "completed_rounds": 2,
+        "controller_cpu_s": 2.125,
+        "elapsed_s": 1.8021152999717742
+      },
+      "result_sha256": "271d8da89912dfde2211fdc7292a64c40a1651cb3b937bc7b679f8084bd89bbe",
+      "compute_evidence": {
+        "requested": "cpu",
+        "resolved": "cpu"
+      },
+      "config": {
+        "aggregator_count": 2,
+        "aggregator_threshold": 2,
+        "attack": "none",
+        "authority_count": 2,
+        "authority_threshold": 2,
+        "backend": "numpy",
+        "batch_strategy": "regroup",
+        "client_authorities": {
+          "client1": "authority1",
+          "client2": "authority2"
+        },
+        "client_count": 2,
+        "cloud_strategy": "auto",
+        "compute_device": "cpu",
+        "dataset": "mnist",
+        "execution": "auto",
+        "grid": 8,
+        "local_epochs": 2,
+        "malicious_clients": 0,
+        "max_norm_ratio": 2.0,
+        "max_norm_squared": null,
+        "min_cosine": 0.0,
+        "mode": "plain",
+        "non_iid": false,
+        "offline_aggregators": 0,
+        "proof_block_size": 128,
+        "proof_suite": "lego_norm_v1",
+        "rounds": 2,
+        "rpc_workers": 6,
+        "seed": 42,
+        "test_limit": 200,
+        "train_limit": 1200,
+        "verification": "deterministic",
+        "verification_threads": 2,
+        "verification_workers": 1
+      }
+    },
+    {
+      "accepted_clients": [
+        [
+          "client1",
+          "client2"
+        ],
+        [
+          "client1",
+          "client2"
+        ]
+      ],
+      "compute_device": "cpu",
+      "curves": {
+        "global": {
+          "evaluation/accuracy": [
+            {
+              "step": 0,
+              "value": 0.029999999329447746
+            },
+            {
+              "step": 1,
+              "value": 0.6100000143051147
+            },
+            {
+              "step": 2,
+              "value": 0.6399999856948853
+            }
+          ],
+          "evaluation/cross_entropy": [
+            {
+              "step": 0,
+              "value": 2.3031277656555176
+            },
+            {
+              "step": 1,
+              "value": 2.053067207336426
+            },
+            {
+              "step": 2,
+              "value": 1.8535869121551514
+            }
+          ]
+        },
+        "nodes/client1": {
+          "evaluation/accuracy": [
+            {
+              "step": 1,
+              "value": 0.6000000238418579
+            },
+            {
+              "step": 2,
+              "value": 0.6349999904632568
+            }
+          ],
+          "evaluation/cross_entropy": [
+            {
+              "step": 1,
+              "value": 2.0257792472839355
+            },
+            {
+              "step": 2,
+              "value": 1.809005856513977
+            }
+          ]
+        },
+        "nodes/client2": {
+          "evaluation/accuracy": [
+            {
+              "step": 1,
+              "value": 0.5683333277702332
+            },
+            {
+              "step": 2,
+              "value": 0.721666693687439
+            }
+          ],
+          "evaluation/cross_entropy": [
+            {
+              "step": 1,
+              "value": 2.0035157203674316
+            },
+            {
+              "step": 2,
+              "value": 1.7825548648834229
+            }
+          ]
+        }
+      },
+      "implementation": {
+        "dependencies": {
+          "cryptography": "50.0.2",
+          "dgfl-native": "0.2.0",
+          "fastapi": "0.142.2",
+          "httpx": "0.28.1",
+          "numpy": "2.5.3",
+          "py-arkworks-bls12381": "0.5.0"
+        },
+        "machine": "AMD64",
+        "native": {
+          "build_input_sha256": {
+            "native/dgfl-native/Cargo.lock": "67df2010ebbf83d6a300f0b174128f493ab35f86b699b294c0ca2583e25afaa4",
+            "native/dgfl-native/Cargo.toml": "dbb0bdde924fad97799b21ae7b39906428ed6aace0119aeb1d382e103f087c60",
+            "native/dgfl-native/pyproject.toml": "400350c74a67afd4401cb7e9eb3a53c3f51466ee59371e6f222682856f789df2",
+            "native/dgfl-native/src/aggregate.rs": "b62cbdefeec2f252734320cbd5cfc63887b265847e3759478d06c768f55319ad",
+            "native/dgfl-native/src/batch.rs": "42c7430e48421c99422915bfba2b140d7a5bc2de1e430db9c1f9042bf4337464",
+            "native/dgfl-native/src/lego.rs": "8bb7bf02ef4700086207d5e4e70ca1ba7c80e8f56260d19bd7843c9eb80004c3",
+            "native/dgfl-native/src/lib.rs": "f9f5879163abac7904f0966af5d92547840a9f43a9dbd9fe0de155ade984f7e3",
+            "native/dgfl-native/src/linked.rs": "cf87ca753be29e21a40b74bbba62290a4a2b397404da57c32d1ec474a217542c",
+            "native/dgfl-native/src/sigma.rs": "e72b91d211f42df256e33262da8aa146643cc30a5ab5e3e72f1969ab817f50b7"
+          },
+          "enabled": true,
+          "evidence_scope": "controller imported extension paths and their current on-disk digests, plus checked loaded APIs; installed metadata does not attest node imports or an in-memory image after file replacement",
+          "installed_artifact_sha256": {
+            "dgfl_native/dgfl_native.cp312-win_amd64.pyd": "d15b2527762276de34ac40c6eb52c7b0f79c4220dfa3f3ae4afdf4928018ffff"
+          },
+          "loaded_artifact_sha256": {
+            "dgfl_native.dgfl_native": "d15b2527762276de34ac40c6eb52c7b0f79c4220dfa3f3ae4afdf4928018ffff"
+          },
+          "loaded_capabilities": {
+            "aggregate_verification_native": true,
+            "checked_gpu_point_batch": true,
+            "ciphertext_sum_pairing_batch": true,
+            "cloud_key_pairing_batch": true,
+            "lego_norm_v1": true
+          },
+          "package_version": "0.2.0"
+        },
+        "platform": "Windows",
+        "python": "3.12.14",
+        "source_files": {
+          "__init__.py": "89a4f61300fe9773e510c2d9d8a19deedcb7ca42ca3a0664e6894b54f49b2f47",
+          "cli.py": "d769b1a10947480ba7dc1975c0f158d200c17abc1506c63748d65735b8a80425",
+          "crypto/__init__.py": "f59f263384f8d73d5b3c55a3f1a298297ce6fc272749194684d5787f92cc412c",
+          "crypto/backend.py": "63d52b9294072fb959a65d96ca022c4676cbe59e8cc13be02eb6e8c7b7ed236c",
+          "crypto/compact.py": "fce68bdbc56fbc06ec96d8e913a6df028801ebdfad448c21040e67242809a73d",
+          "crypto/cuda_scheduler.py": "d3cc0d02763dfa15349081519bf809964b69b8121bc20ec937dfb1ee2e338a92",
+          "crypto/gpu.py": "9a5ae5741b28e817f7650bc151e696c328522b212a432169a34283f82fab2c66",
+          "crypto/gpu_profile.py": "0252c11731e22d72ca10fc0c9d359dde55d2aedd1eebd1f9715781ab1178941f",
+          "crypto/ipa.py": "23b4a73e8539abb7be210cd44659acbf00820a71dfcea329f45062fa9911a79e",
+          "crypto/lego.py": "4634d2daff08a35b92e266aa49c50417972d9a313ac3c4a3c085b5b12f532768",
+          "crypto/lego_registry.py": "061a187c3781ea80612dabbf45d84d1b636a9d2b5b3fc60b91e0ba7e7ccb717e",
+          "crypto/linkage.py": "2d6980806fdc74ef98e1fa89a27d6b827686ae21a0c648e360ec4384965f2654",
+          "crypto/protocol.py": "6917abded47a9954aa2c0e2d0d3046afe0ad1f6d0fddb9fef5a7484915574837",
+          "deployment.py": "462c0c77fec5ecff24b15216395090946785964b4ee4db13efe2d5e964296408",
+          "experiments/__init__.py": "21c3bd2568eb6d313fd34ff1b29a93e5c3ab63499fbab7012e5babc2b1b35212",
+          "experiments/evidence.py": "1e71e53473974c0c3b3f73ac22101c716eac98c6d33aa97e73340e432fce2ec3",
+          "experiments/hardware.py": "eda73e48e902d9f848a409ed5d5140fa4b8922e8b06c2766ed1afcb5c3d12883",
+          "experiments/monitoring.py": "b383b34d2808005a17034bf40901e49b589ca91371df020ab69b1a588391851e",
+          "experiments/resources.py": "79c24734762f8be57a488b6d55ded172b7b47140b1529c3c8403d4e42d90fdbf",
+          "experiments/runner.py": "9234727a8466dd23bf95e42070a0ab19f7ca30b452d88a501d200138a7fdacc4",
+          "experiments/telemetry.py": "3006c17e4d8eb5af2961e305f8d4f691f504e40598fff08e987126b9c4690f3b",
+          "experiments/tensorboard.py": "2334cde652395159525f0f795f58c8277f498a22c7793797b725b3b2e767f3cf",
+          "services/__init__.py": "776b05daa5aa1a7acc4c9101e93a2d3116ed601da2859c5bdb76676c8634f510",
+          "services/control.py": "360cc1dfaefb6d4d83c27dff3af6dc332ec92ef60fc476f75ddc746541137df2",
+          "services/node.py": "5e16ec8e3c463e81cc0865ff8ccb316b4218b2c10e0f11941c02bfbc1605b0d8",
+          "services/roles.py": "3dc4aa944258224d8cc1fe8982c0ad40fc00fa1e2d1ccd41bf3a9ee3d0ca4011",
+          "services/telemetry.py": "94075f5e12df7b8f15081ca01c7ba88f669bcad27ec46824290bbe63d0729778",
+          "services/tensorboard.py": "52af3361c7485acb6da13a5e0e48dedd5a894f50434d3ce6503f132df5cac324",
+          "services/tensorboard_metrics.py": "602c5691d3e63da6694a6050586b3103408e256782dfba9a200c4cf6ab92498a",
+          "system_info.py": "b44ee9ded00aedb29428b219a9016fae8982a9de45925aed7889c04a68bb981e",
+          "topology.py": "c44f3bae214b37889ab7c4edb43f9828f18fa19f02c5d6774ba2aac51ee9bf0f",
+          "training/__init__.py": "e0940d304da660740af9c5ac15b4bf52c336cc5e0b342cecae325214fe4bfcf3",
+          "training/cifar10.py": "1db5b9fbbdf350088612fa85015e3bd7e06050aeffed90fae9b55f9c4941ea7b",
+          "training/data.py": "6f736c5e46e1be11305d5425d47f79efa6a17c0f7a2af095d8595363c8a8eb1b",
+          "training/datasets.py": "4cf0fb14f6cb4c6f82d5cc96d0c39f4fdc207a14ec5d1a2dcc615282a3bfcf19",
+          "training/model.py": "1e6eaf84563b40a6cc1ed00110adf102fd79bd75396a967d687be2e942e2f581",
+          "training/paper_models.py": "0a8663d008822609af885fb6b66b43794ef8e309bc54c877034b0f11e85b7b01",
+          "transport/__init__.py": "ba7699d32e3cef920d73874f8cc544e4e9cdb258957f6d7df984101d7ffd966c",
+          "transport/binary.py": "7ccf2f75fe07ad4849973a2f92ec9292fee8205b6db960ae0efdfadd1652aa12",
+          "transport/chunking.py": "dff3542bd14dbeb70597e2ab4f70dfbdb1d75139cfa367f5ad3ec404266b05c2",
+          "transport/client.py": "847bedda3d8af206aa3d34e44fc6c3cd85e88ddceca0d21601d9dc8c621dda6c",
+          "transport/security.py": "69d3c21b9af7e4f31e650f37be3c636b6c6cc59194006541a0457ae4b9ba2efc",
+          "validation/__init__.py": "49a5acd017102635116f7594843dfb044a81cf6134a303fda92c7b2b2383829e",
+          "validation/policy.py": "c0e8f1ff8c7ea8931f697fd0a22200634654f6166dda561a1d8d936a4d43f3ef"
+        },
+        "source_sha256": "88b8503b55225fbfcb8ce64c8dd4db1ab200e0d1174af5a6b4c8b1a2dd318e99"
+      },
+      "mode": "optimized",
+      "model_hashes": [
+        "204beeab37af06a19a9f2f0195af74d6288ce1fe6a66eac55405ad63e9efcdcc",
+        "3d6f293b37814f68fd6097ab6adcc59a585cfda5f596d349f96118b28cfd7a10"
+      ],
+      "node_monitoring": {
+        "bytes_sent": 31150,
+        "cleanup_complete": true,
+        "collection_failures": 0,
+        "events_missing": 0,
+        "events_received": 42,
+        "last_error": null,
+        "local_machine_samples_timed": 5,
+        "local_machine_sampling_s": 0.03200000012293458,
+        "log_failures": 0,
+        "metrics_eval_s": 0.0013731000944972038,
+        "node_samples_timed": 30,
+        "node_sampling_s": 0.33461660053581,
+        "training_rounds": {
+          "1": {
+            "clients_recorded": 2,
+            "metrics_callback_s": 0.013209300115704536,
+            "metrics_eval_s": 0.0006940001621842384,
+            "training_s": 0.002091699745506048
+          },
+          "2": {
+            "clients_recorded": 2,
+            "metrics_callback_s": 0.011546399910002947,
+            "metrics_eval_s": 0.0006790999323129654,
+            "training_s": 0.0020056001376360655
+          }
+        }
+      },
+      "run_id": "b6b9aa544973498c90a229955ca5fc8f",
+      "status": "completed",
+      "summary": {
+        "accuracy": 0.64,
+        "bytes_sent": 52420410,
+        "completed_rounds": 2,
+        "controller_cpu_s": 13.1875,
+        "elapsed_s": 18.283962999936193
+      },
+      "result_sha256": "b01d954866cf709c0de822ee448bddec9708d6b55b147d42fbab4f85d119c1f2",
+      "compute_evidence": {
+        "requested": "cpu",
+        "resolved": "cpu"
+      },
+      "config": {
+        "aggregator_count": 2,
+        "aggregator_threshold": 2,
+        "attack": "none",
+        "authority_count": 2,
+        "authority_threshold": 2,
+        "backend": "numpy",
+        "batch_strategy": "regroup",
+        "client_authorities": {
+          "client1": "authority1",
+          "client2": "authority2"
+        },
+        "client_count": 2,
+        "cloud_strategy": "auto",
+        "compute_device": "cpu",
+        "dataset": "mnist",
+        "execution": "auto",
+        "grid": 8,
+        "local_epochs": 2,
+        "malicious_clients": 0,
+        "max_norm_ratio": 2.0,
+        "max_norm_squared": null,
+        "min_cosine": 0.0,
+        "mode": "optimized",
+        "non_iid": false,
+        "offline_aggregators": 0,
+        "proof_block_size": 128,
+        "proof_crs_hash": "8687d175e07840635fc78f651261ce19804bc5a3e7d84cbec15bb70d010055b8",
+        "proof_suite": "lego_norm_v1",
+        "rounds": 2,
+        "rpc_workers": 6,
+        "seed": 42,
+        "test_limit": 200,
+        "train_limit": 1200,
+        "verification": "deterministic",
+        "verification_threads": 2,
+        "verification_workers": 1
+      }
+    },
+    {
+      "accepted_clients": [
+        [
+          "client1",
+          "client2"
+        ],
+        [
+          "client1",
+          "client2"
+        ]
+      ],
+      "compute_device": "gpu",
+      "curves": {
+        "global": {
+          "evaluation/accuracy": [
+            {
+              "step": 0,
+              "value": 0.029999999329447746
+            },
+            {
+              "step": 1,
+              "value": 0.6100000143051147
+            },
+            {
+              "step": 2,
+              "value": 0.6399999856948853
+            }
+          ],
+          "evaluation/cross_entropy": [
+            {
+              "step": 0,
+              "value": 2.3031277656555176
+            },
+            {
+              "step": 1,
+              "value": 2.053067207336426
+            },
+            {
+              "step": 2,
+              "value": 1.8535869121551514
+            }
+          ]
+        },
+        "nodes/client1": {
+          "evaluation/accuracy": [
+            {
+              "step": 1,
+              "value": 0.6000000238418579
+            },
+            {
+              "step": 2,
+              "value": 0.6349999904632568
+            }
+          ],
+          "evaluation/cross_entropy": [
+            {
+              "step": 1,
+              "value": 2.0257792472839355
+            },
+            {
+              "step": 2,
+              "value": 1.809005856513977
+            }
+          ]
+        },
+        "nodes/client2": {
+          "evaluation/accuracy": [
+            {
+              "step": 1,
+              "value": 0.5683333277702332
+            },
+            {
+              "step": 2,
+              "value": 0.721666693687439
+            }
+          ],
+          "evaluation/cross_entropy": [
+            {
+              "step": 1,
+              "value": 2.0035157203674316
+            },
+            {
+              "step": 2,
+              "value": 1.7825548648834229
+            }
+          ]
+        }
+      },
+      "implementation": {
+        "dependencies": {
+          "cryptography": "50.0.2",
+          "dgfl-native": "0.2.0",
+          "fastapi": "0.142.2",
+          "httpx": "0.28.1",
+          "numpy": "2.5.3",
+          "py-arkworks-bls12381": "0.5.0"
+        },
+        "machine": "AMD64",
+        "native": {
+          "build_input_sha256": {
+            "native/dgfl-native/Cargo.lock": "67df2010ebbf83d6a300f0b174128f493ab35f86b699b294c0ca2583e25afaa4",
+            "native/dgfl-native/Cargo.toml": "dbb0bdde924fad97799b21ae7b39906428ed6aace0119aeb1d382e103f087c60",
+            "native/dgfl-native/pyproject.toml": "400350c74a67afd4401cb7e9eb3a53c3f51466ee59371e6f222682856f789df2",
+            "native/dgfl-native/src/aggregate.rs": "b62cbdefeec2f252734320cbd5cfc63887b265847e3759478d06c768f55319ad",
+            "native/dgfl-native/src/batch.rs": "42c7430e48421c99422915bfba2b140d7a5bc2de1e430db9c1f9042bf4337464",
+            "native/dgfl-native/src/lego.rs": "8bb7bf02ef4700086207d5e4e70ca1ba7c80e8f56260d19bd7843c9eb80004c3",
+            "native/dgfl-native/src/lib.rs": "f9f5879163abac7904f0966af5d92547840a9f43a9dbd9fe0de155ade984f7e3",
+            "native/dgfl-native/src/linked.rs": "cf87ca753be29e21a40b74bbba62290a4a2b397404da57c32d1ec474a217542c",
+            "native/dgfl-native/src/sigma.rs": "e72b91d211f42df256e33262da8aa146643cc30a5ab5e3e72f1969ab817f50b7"
+          },
+          "enabled": true,
+          "evidence_scope": "controller imported extension paths and their current on-disk digests, plus checked loaded APIs; installed metadata does not attest node imports or an in-memory image after file replacement",
+          "installed_artifact_sha256": {
+            "dgfl_native/dgfl_native.cp312-win_amd64.pyd": "d15b2527762276de34ac40c6eb52c7b0f79c4220dfa3f3ae4afdf4928018ffff"
+          },
+          "loaded_artifact_sha256": {
+            "dgfl_native.dgfl_native": "d15b2527762276de34ac40c6eb52c7b0f79c4220dfa3f3ae4afdf4928018ffff"
+          },
+          "loaded_capabilities": {
+            "aggregate_verification_native": true,
+            "checked_gpu_point_batch": true,
+            "ciphertext_sum_pairing_batch": true,
+            "cloud_key_pairing_batch": true,
+            "lego_norm_v1": true
+          },
+          "package_version": "0.2.0"
+        },
+        "platform": "Windows",
+        "python": "3.12.14",
+        "source_files": {
+          "__init__.py": "89a4f61300fe9773e510c2d9d8a19deedcb7ca42ca3a0664e6894b54f49b2f47",
+          "cli.py": "d769b1a10947480ba7dc1975c0f158d200c17abc1506c63748d65735b8a80425",
+          "crypto/__init__.py": "f59f263384f8d73d5b3c55a3f1a298297ce6fc272749194684d5787f92cc412c",
+          "crypto/backend.py": "63d52b9294072fb959a65d96ca022c4676cbe59e8cc13be02eb6e8c7b7ed236c",
+          "crypto/compact.py": "fce68bdbc56fbc06ec96d8e913a6df028801ebdfad448c21040e67242809a73d",
+          "crypto/cuda_scheduler.py": "d3cc0d02763dfa15349081519bf809964b69b8121bc20ec937dfb1ee2e338a92",
+          "crypto/gpu.py": "9a5ae5741b28e817f7650bc151e696c328522b212a432169a34283f82fab2c66",
+          "crypto/gpu_profile.py": "0252c11731e22d72ca10fc0c9d359dde55d2aedd1eebd1f9715781ab1178941f",
+          "crypto/ipa.py": "23b4a73e8539abb7be210cd44659acbf00820a71dfcea329f45062fa9911a79e",
+          "crypto/lego.py": "4634d2daff08a35b92e266aa49c50417972d9a313ac3c4a3c085b5b12f532768",
+          "crypto/lego_registry.py": "061a187c3781ea80612dabbf45d84d1b636a9d2b5b3fc60b91e0ba7e7ccb717e",
+          "crypto/linkage.py": "2d6980806fdc74ef98e1fa89a27d6b827686ae21a0c648e360ec4384965f2654",
+          "crypto/protocol.py": "6917abded47a9954aa2c0e2d0d3046afe0ad1f6d0fddb9fef5a7484915574837",
+          "deployment.py": "462c0c77fec5ecff24b15216395090946785964b4ee4db13efe2d5e964296408",
+          "experiments/__init__.py": "21c3bd2568eb6d313fd34ff1b29a93e5c3ab63499fbab7012e5babc2b1b35212",
+          "experiments/evidence.py": "1e71e53473974c0c3b3f73ac22101c716eac98c6d33aa97e73340e432fce2ec3",
+          "experiments/hardware.py": "eda73e48e902d9f848a409ed5d5140fa4b8922e8b06c2766ed1afcb5c3d12883",
+          "experiments/monitoring.py": "b383b34d2808005a17034bf40901e49b589ca91371df020ab69b1a588391851e",
+          "experiments/resources.py": "79c24734762f8be57a488b6d55ded172b7b47140b1529c3c8403d4e42d90fdbf",
+          "experiments/runner.py": "9234727a8466dd23bf95e42070a0ab19f7ca30b452d88a501d200138a7fdacc4",
+          "experiments/telemetry.py": "3006c17e4d8eb5af2961e305f8d4f691f504e40598fff08e987126b9c4690f3b",
+          "experiments/tensorboard.py": "2334cde652395159525f0f795f58c8277f498a22c7793797b725b3b2e767f3cf",
+          "services/__init__.py": "776b05daa5aa1a7acc4c9101e93a2d3116ed601da2859c5bdb76676c8634f510",
+          "services/control.py": "360cc1dfaefb6d4d83c27dff3af6dc332ec92ef60fc476f75ddc746541137df2",
+          "services/node.py": "5e16ec8e3c463e81cc0865ff8ccb316b4218b2c10e0f11941c02bfbc1605b0d8",
+          "services/roles.py": "3dc4aa944258224d8cc1fe8982c0ad40fc00fa1e2d1ccd41bf3a9ee3d0ca4011",
+          "services/telemetry.py": "94075f5e12df7b8f15081ca01c7ba88f669bcad27ec46824290bbe63d0729778",
+          "services/tensorboard.py": "52af3361c7485acb6da13a5e0e48dedd5a894f50434d3ce6503f132df5cac324",
+          "services/tensorboard_metrics.py": "602c5691d3e63da6694a6050586b3103408e256782dfba9a200c4cf6ab92498a",
+          "system_info.py": "b44ee9ded00aedb29428b219a9016fae8982a9de45925aed7889c04a68bb981e",
+          "topology.py": "c44f3bae214b37889ab7c4edb43f9828f18fa19f02c5d6774ba2aac51ee9bf0f",
+          "training/__init__.py": "e0940d304da660740af9c5ac15b4bf52c336cc5e0b342cecae325214fe4bfcf3",
+          "training/cifar10.py": "1db5b9fbbdf350088612fa85015e3bd7e06050aeffed90fae9b55f9c4941ea7b",
+          "training/data.py": "6f736c5e46e1be11305d5425d47f79efa6a17c0f7a2af095d8595363c8a8eb1b",
+          "training/datasets.py": "4cf0fb14f6cb4c6f82d5cc96d0c39f4fdc207a14ec5d1a2dcc615282a3bfcf19",
+          "training/model.py": "1e6eaf84563b40a6cc1ed00110adf102fd79bd75396a967d687be2e942e2f581",
+          "training/paper_models.py": "0a8663d008822609af885fb6b66b43794ef8e309bc54c877034b0f11e85b7b01",
+          "transport/__init__.py": "ba7699d32e3cef920d73874f8cc544e4e9cdb258957f6d7df984101d7ffd966c",
+          "transport/binary.py": "7ccf2f75fe07ad4849973a2f92ec9292fee8205b6db960ae0efdfadd1652aa12",
+          "transport/chunking.py": "dff3542bd14dbeb70597e2ab4f70dfbdb1d75139cfa367f5ad3ec404266b05c2",
+          "transport/client.py": "847bedda3d8af206aa3d34e44fc6c3cd85e88ddceca0d21601d9dc8c621dda6c",
+          "transport/security.py": "69d3c21b9af7e4f31e650f37be3c636b6c6cc59194006541a0457ae4b9ba2efc",
+          "validation/__init__.py": "49a5acd017102635116f7594843dfb044a81cf6134a303fda92c7b2b2383829e",
+          "validation/policy.py": "c0e8f1ff8c7ea8931f697fd0a22200634654f6166dda561a1d8d936a4d43f3ef"
+        },
+        "source_sha256": "88b8503b55225fbfcb8ce64c8dd4db1ab200e0d1174af5a6b4c8b1a2dd318e99"
+      },
+      "mode": "optimized",
+      "model_hashes": [
+        "204beeab37af06a19a9f2f0195af74d6288ce1fe6a66eac55405ad63e9efcdcc",
+        "3d6f293b37814f68fd6097ab6adcc59a585cfda5f596d349f96118b28cfd7a10"
+      ],
+      "node_monitoring": {
+        "bytes_sent": 26610,
+        "cleanup_complete": true,
+        "collection_failures": 0,
+        "events_missing": 0,
+        "events_received": 36,
+        "last_error": null,
+        "local_machine_samples_timed": 4,
+        "local_machine_sampling_s": 0.06400000001303852,
+        "log_failures": 0,
+        "metrics_eval_s": 0.001533400034531951,
+        "node_samples_timed": 24,
+        "node_sampling_s": 0.2696722992695868,
+        "training_rounds": {
+          "1": {
+            "clients_recorded": 2,
+            "metrics_callback_s": 0.015792000107467175,
+            "metrics_eval_s": 0.0008309001568704844,
+            "training_s": 0.002795999636873603
+          },
+          "2": {
+            "clients_recorded": 2,
+            "metrics_callback_s": 0.012370300013571978,
+            "metrics_eval_s": 0.0007024998776614666,
+            "training_s": 0.002061000093817711
+          }
+        }
+      },
+      "run_id": "4d7c609e44134fb4a85014077c7dcf5b",
+      "status": "completed",
+      "summary": {
+        "accuracy": 0.64,
+        "bytes_sent": 52448798,
+        "completed_rounds": 2,
+        "controller_cpu_s": 5.546875,
+        "elapsed_s": 14.480675800004974
+      },
+      "result_sha256": "b1e3a186d78d494ceb6254045745f0e11ea16e77d9e6891d63e1293e2ec94cab",
+      "compute_evidence": {
+        "accelerated_operations": [
+          "ec_batch",
+          "gt_exp_batch",
+          "gt_subgroup_batch"
+        ],
+        "authorities": {
+          "authority1": {
+            "accelerated_operations": [
+              "ec_batch",
+              "gt_exp_batch",
+              "gt_subgroup_batch"
+            ],
+            "available": true,
+            "backend": "cuda_nvrtc",
+            "compute_capability": "8.9",
+            "cubin_sha256": "8879ef3f5f656bd99dc5d42548253558d9a2e182ea99567c42d0354880640e8b",
+            "device_index": 0,
+            "device_resources": {
+              "errors": {},
+              "max_threads_per_multiprocessor": 1536,
+              "multiprocessor_count": 36,
+              "registers_per_multiprocessor": 65536
+            },
+            "driver_version": 12070,
+            "kernel_build_sha256": "7a87ed1ce7755031e8754d084beb692fb7f7e24f048cec42b45529c0b77ef5ce",
+            "kernel_resources": {
+              "dgfl_gt_pow_batch": {
+                "errors": {},
+                "function_name": "dgfl_gt_pow_batch",
+                "local_bytes_per_thread": 18568,
+                "max_threads_per_block": 256,
+                "num_registers": 255,
+                "static_shared_bytes": 0
+              },
+              "dgfl_gt_validate": {
+                "errors": {},
+                "function_name": "dgfl_gt_validate",
+                "local_bytes_per_thread": 17352,
+                "max_threads_per_block": 256,
+                "num_registers": 255,
+                "static_shared_bytes": 0
+              },
+              "dgflow_g1_msm": {
+                "errors": {},
+                "function_name": "dgflow_g1_msm",
+                "local_bytes_per_thread": 7016,
+                "max_threads_per_block": 384,
+                "num_registers": 166,
+                "static_shared_bytes": 0
+              },
+              "dgflow_g1_verify_polynomial": {
+                "errors": {},
+                "function_name": "dgflow_g1_verify_polynomial",
+                "local_bytes_per_thread": 10504,
+                "max_threads_per_block": 384,
+                "num_registers": 166,
+                "static_shared_bytes": 0
+              }
+            },
+            "kernel_source_sha256": "8cd06bbd67406ef8a54558fa53236518f711fe71b97e6ba504577422d676be45",
+            "memory_bytes": 8585216000,
+            "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+            "nvrtc_version": "12.9",
+            "reason": "",
+            "verified": true
+          },
+          "authority2": {
+            "accelerated_operations": [
+              "ec_batch",
+              "gt_exp_batch",
+              "gt_subgroup_batch"
+            ],
+            "available": true,
+            "backend": "cuda_nvrtc",
+            "compute_capability": "8.9",
+            "cubin_sha256": "8879ef3f5f656bd99dc5d42548253558d9a2e182ea99567c42d0354880640e8b",
+            "device_index": 0,
+            "device_resources": {
+              "errors": {},
+              "max_threads_per_multiprocessor": 1536,
+              "multiprocessor_count": 36,
+              "registers_per_multiprocessor": 65536
+            },
+            "driver_version": 12070,
+            "kernel_build_sha256": "7a87ed1ce7755031e8754d084beb692fb7f7e24f048cec42b45529c0b77ef5ce",
+            "kernel_resources": {
+              "dgfl_gt_pow_batch": {
+                "errors": {},
+                "function_name": "dgfl_gt_pow_batch",
+                "local_bytes_per_thread": 18568,
+                "max_threads_per_block": 256,
+                "num_registers": 255,
+                "static_shared_bytes": 0
+              },
+              "dgfl_gt_validate": {
+                "errors": {},
+                "function_name": "dgfl_gt_validate",
+                "local_bytes_per_thread": 17352,
+                "max_threads_per_block": 256,
+                "num_registers": 255,
+                "static_shared_bytes": 0
+              },
+              "dgflow_g1_msm": {
+                "errors": {},
+                "function_name": "dgflow_g1_msm",
+                "local_bytes_per_thread": 7016,
+                "max_threads_per_block": 384,
+                "num_registers": 166,
+                "static_shared_bytes": 0
+              },
+              "dgflow_g1_verify_polynomial": {
+                "errors": {},
+                "function_name": "dgflow_g1_verify_polynomial",
+                "local_bytes_per_thread": 10504,
+                "max_threads_per_block": 384,
+                "num_registers": 166,
+                "static_shared_bytes": 0
+              }
+            },
+            "kernel_source_sha256": "8cd06bbd67406ef8a54558fa53236518f711fe71b97e6ba504577422d676be45",
+            "memory_bytes": 8585216000,
+            "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+            "nvrtc_version": "12.9",
+            "reason": "",
+            "verified": true
+          }
+        },
+        "coordinator": {
+          "accelerated_operations": [
+            "ec_batch",
+            "gt_exp_batch",
+            "gt_subgroup_batch"
+          ],
+          "available": true,
+          "backend": "cuda_nvrtc",
+          "compute_capability": "8.9",
+          "cubin_sha256": "8879ef3f5f656bd99dc5d42548253558d9a2e182ea99567c42d0354880640e8b",
+          "device_index": 0,
+          "device_resources": {
+            "errors": {},
+            "max_threads_per_multiprocessor": 1536,
+            "multiprocessor_count": 36,
+            "registers_per_multiprocessor": 65536
+          },
+          "driver_version": 12070,
+          "kernel_build_sha256": "7a87ed1ce7755031e8754d084beb692fb7f7e24f048cec42b45529c0b77ef5ce",
+          "kernel_resources": {
+            "dgfl_gt_pow_batch": {
+              "errors": {},
+              "function_name": "dgfl_gt_pow_batch",
+              "local_bytes_per_thread": 18568,
+              "max_threads_per_block": 256,
+              "num_registers": 255,
+              "static_shared_bytes": 0
+            },
+            "dgfl_gt_prepare_public_table": {
+              "errors": {},
+              "function_name": "dgfl_gt_prepare_public_table",
+              "local_bytes_per_thread": 15416,
+              "max_threads_per_block": 256,
+              "num_registers": 255,
+              "static_shared_bytes": 0
+            },
+            "dgfl_gt_product_powers_batch": {
+              "errors": {},
+              "function_name": "dgfl_gt_product_powers_batch",
+              "local_bytes_per_thread": 19336,
+              "max_threads_per_block": 256,
+              "num_registers": 255,
+              "static_shared_bytes": 0
+            },
+            "dgfl_gt_validate": {
+              "errors": {},
+              "function_name": "dgfl_gt_validate",
+              "local_bytes_per_thread": 17352,
+              "max_threads_per_block": 256,
+              "num_registers": 255,
+              "static_shared_bytes": 0
+            },
+            "dgfl_gt_verify_many": {
+              "errors": {},
+              "function_name": "dgfl_gt_verify_many",
+              "local_bytes_per_thread": 21096,
+              "max_threads_per_block": 256,
+              "num_registers": 255,
+              "static_shared_bytes": 0
+            },
+            "dgflow_g1_msm": {
+              "errors": {},
+              "function_name": "dgflow_g1_msm",
+              "local_bytes_per_thread": 7016,
+              "max_threads_per_block": 384,
+              "num_registers": 166,
+              "static_shared_bytes": 0
+            },
+            "dgflow_g1_verify_polynomial": {
+              "errors": {},
+              "function_name": "dgflow_g1_verify_polynomial",
+              "local_bytes_per_thread": 10504,
+              "max_threads_per_block": 384,
+              "num_registers": 166,
+              "static_shared_bytes": 0
+            },
+            "dgflow_g1_verify_polynomial_many": {
+              "errors": {},
+              "function_name": "dgflow_g1_verify_polynomial_many",
+              "local_bytes_per_thread": 10504,
+              "max_threads_per_block": 384,
+              "num_registers": 166,
+              "static_shared_bytes": 0
+            }
+          },
+          "kernel_source_sha256": "8cd06bbd67406ef8a54558fa53236518f711fe71b97e6ba504577422d676be45",
+          "memory_bytes": 8585216000,
+          "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+          "nvrtc_version": "12.9",
+          "reason": "",
+          "verified": true
+        },
+        "coordinator_gpu_profile": {
+          "by_kernel": {
+            "dgfl_gt_pow_batch": {
+              "allocation_reuses": 0,
+              "allocation_seconds": 0.0,
+              "allocations": 0,
+              "batches": 0,
+              "download_bytes": 0,
+              "download_seconds": 0.0,
+              "failed_batches": 0,
+              "failed_wall_seconds": 0,
+              "frees": 0,
+              "host_wall_seconds": 0.0,
+              "kernel_seconds": 0.0,
+              "launch_seconds": 0.0,
+              "lock_wait_seconds": 0.0,
+              "output_clear_seconds": 0.0,
+              "rows": 0,
+              "scheduler_wait_seconds": 0.0,
+              "setup_seconds": 0.0,
+              "sync_seconds": 0.0,
+              "upload_bytes": 0,
+              "upload_seconds": 0.0
+            },
+            "dgfl_gt_prepare_public_table": {
+              "allocation_reuses": 3,
+              "allocation_seconds": 3.9499951526522636e-05,
+              "allocations": 3,
+              "batches": 2,
+              "download_bytes": 1180160,
+              "download_seconds": 0.0005236000288277864,
+              "failed_batches": 0,
+              "failed_wall_seconds": 0,
+              "frees": 0,
+              "host_wall_seconds": 0.3468315002974123,
+              "kernel_seconds": 0.2895861740112305,
+              "launch_seconds": 4.0899962186813354e-05,
+              "lock_wait_seconds": 3.4999102354049683e-06,
+              "output_clear_seconds": 3.939983434975147e-05,
+              "rows": 128,
+              "scheduler_wait_seconds": 0.055536600295454264,
+              "setup_seconds": 0.00010509975254535675,
+              "sync_seconds": 0.29000039980746806,
+              "upload_bytes": 1152,
+              "upload_seconds": 2.6399968191981316e-05
+            },
+            "dgfl_gt_product_powers_batch": {
+              "allocation_reuses": 44,
+              "allocation_seconds": 0.0004792013205587864,
+              "allocations": 4,
+              "batches": 12,
+              "download_bytes": 2262000,
+              "download_seconds": 0.0009650997817516327,
+              "failed_batches": 0,
+              "failed_wall_seconds": 0,
+              "frees": 0,
+              "host_wall_seconds": 0.5405955002643168,
+              "kernel_seconds": 0.027130239963531488,
+              "launch_seconds": 0.0002927994355559349,
+              "lock_wait_seconds": 3.7100864574313164e-05,
+              "output_clear_seconds": 0.0002678004093468189,
+              "rows": 3900,
+              "scheduler_wait_seconds": 0.5047361000906676,
+              "setup_seconds": 0.00023329979740083218,
+              "sync_seconds": 0.028401000425219536,
+              "upload_bytes": 5532800,
+              "upload_seconds": 0.0011738997418433428
+            },
+            "dgfl_gt_validate": {
+              "allocation_reuses": 10,
+              "allocation_seconds": 0.00012930040247738361,
+              "allocations": 2,
+              "batches": 6,
+              "download_bytes": 10408,
+              "download_seconds": 0.000287200091406703,
+              "failed_batches": 0,
+              "failed_wall_seconds": 0,
+              "frees": 2,
+              "host_wall_seconds": 0.35180429997853935,
+              "kernel_seconds": 0.13782025909423826,
+              "launch_seconds": 0.00018820026889443398,
+              "lock_wait_seconds": 1.619989052414894e-05,
+              "output_clear_seconds": 8.659996092319489e-05,
+              "rows": 2602,
+              "scheduler_wait_seconds": 0.21050429996103048,
+              "setup_seconds": 7.049995474517345e-05,
+              "sync_seconds": 0.13931240001693368,
+              "upload_bytes": 1498752,
+              "upload_seconds": 0.00036719953641295433
+            },
+            "dgfl_gt_verify_many": {
+              "allocation_reuses": 7,
+              "allocation_seconds": 0.0006226999685168266,
+              "allocations": 7,
+              "batches": 2,
+              "download_bytes": 20800,
+              "download_seconds": 0.0001295998226851225,
+              "failed_batches": 0,
+              "failed_wall_seconds": 0,
+              "frees": 0,
+              "host_wall_seconds": 0.59004499996081,
+              "kernel_seconds": 0.3751390075683594,
+              "launch_seconds": 0.0056477999314665794,
+              "lock_wait_seconds": 8.500181138515472e-06,
+              "output_clear_seconds": 9.810016490519047e-05,
+              "rows": 5200,
+              "scheduler_wait_seconds": 0.2100534001365304,
+              "setup_seconds": 0.000179600203409791,
+              "sync_seconds": 0.3697619002778083,
+              "upload_bytes": 7504000,
+              "upload_seconds": 0.0007904998492449522
+            },
+            "dgflow_g1_msm": {
+              "allocation_reuses": 0,
+              "allocation_seconds": 0.0,
+              "allocations": 0,
+              "batches": 0,
+              "download_bytes": 0,
+              "download_seconds": 0.0,
+              "failed_batches": 0,
+              "failed_wall_seconds": 0,
+              "frees": 0,
+              "host_wall_seconds": 0.0,
+              "kernel_seconds": 0.0,
+              "launch_seconds": 0.0,
+              "lock_wait_seconds": 0.0,
+              "output_clear_seconds": 0.0,
+              "rows": 0,
+              "scheduler_wait_seconds": 0.0,
+              "setup_seconds": 0.0,
+              "sync_seconds": 0.0,
+              "upload_bytes": 0,
+              "upload_seconds": 0.0
+            },
+            "dgflow_g1_verify_polynomial": {
+              "allocation_reuses": 0,
+              "allocation_seconds": 0.0,
+              "allocations": 0,
+              "batches": 0,
+              "download_bytes": 0,
+              "download_seconds": 0.0,
+              "failed_batches": 0,
+              "failed_wall_seconds": 0,
+              "frees": 0,
+              "host_wall_seconds": 0.0,
+              "kernel_seconds": 0.0,
+              "launch_seconds": 0.0,
+              "lock_wait_seconds": 0.0,
+              "output_clear_seconds": 0.0,
+              "rows": 0,
+              "scheduler_wait_seconds": 0.0,
+              "setup_seconds": 0.0,
+              "sync_seconds": 0.0,
+              "upload_bytes": 0,
+              "upload_seconds": 0.0
+            },
+            "dgflow_g1_verify_polynomial_many": {
+              "allocation_reuses": 7,
+              "allocation_seconds": 0.00023969984613358974,
+              "allocations": 7,
+              "batches": 2,
+              "download_bytes": 20800,
+              "download_seconds": 0.00016799988225102425,
+              "failed_batches": 0,
+              "failed_wall_seconds": 0,
+              "frees": 0,
+              "host_wall_seconds": 0.2339459997601807,
+              "kernel_seconds": 0.07145779037475586,
+              "launch_seconds": 4.610000178217888e-05,
+              "lock_wait_seconds": 8.599832653999329e-06,
+              "output_clear_seconds": 3.360002301633358e-05,
+              "rows": 5200,
+              "scheduler_wait_seconds": 0.16003509983420372,
+              "setup_seconds": 0.00013740011490881443,
+              "sync_seconds": 0.07160070026293397,
+              "upload_bytes": 2017984,
+              "upload_seconds": 0.0006614997982978821
+            }
+          },
+          "configuration": {
+            "block_size": 32,
+            "chunk_size": 1024,
+            "scheduler_slots": 1
+          },
+          "device_resources": {
+            "errors": {},
+            "max_threads_per_multiprocessor": 1536,
+            "multiprocessor_count": 36,
+            "registers_per_multiprocessor": 65536
+          },
+          "kernel_resources": {
+            "dgfl_gt_pow_batch": {
+              "errors": {},
+              "function_name": "dgfl_gt_pow_batch",
+              "local_bytes_per_thread": 18568,
+              "max_threads_per_block": 256,
+              "num_registers": 255,
+              "static_shared_bytes": 0
+            },
+            "dgfl_gt_prepare_public_table": {
+              "errors": {},
+              "function_name": "dgfl_gt_prepare_public_table",
+              "local_bytes_per_thread": 15416,
+              "max_threads_per_block": 256,
+              "num_registers": 255,
+              "static_shared_bytes": 0
+            },
+            "dgfl_gt_product_powers_batch": {
+              "errors": {},
+              "function_name": "dgfl_gt_product_powers_batch",
+              "local_bytes_per_thread": 19336,
+              "max_threads_per_block": 256,
+              "num_registers": 255,
+              "static_shared_bytes": 0
+            },
+            "dgfl_gt_validate": {
+              "errors": {},
+              "function_name": "dgfl_gt_validate",
+              "local_bytes_per_thread": 17352,
+              "max_threads_per_block": 256,
+              "num_registers": 255,
+              "static_shared_bytes": 0
+            },
+            "dgfl_gt_verify_many": {
+              "errors": {},
+              "function_name": "dgfl_gt_verify_many",
+              "local_bytes_per_thread": 21096,
+              "max_threads_per_block": 256,
+              "num_registers": 255,
+              "static_shared_bytes": 0
+            },
+            "dgflow_g1_msm": {
+              "errors": {},
+              "function_name": "dgflow_g1_msm",
+              "local_bytes_per_thread": 7016,
+              "max_threads_per_block": 384,
+              "num_registers": 166,
+              "static_shared_bytes": 0
+            },
+            "dgflow_g1_verify_polynomial": {
+              "errors": {},
+              "function_name": "dgflow_g1_verify_polynomial",
+              "local_bytes_per_thread": 10504,
+              "max_threads_per_block": 384,
+              "num_registers": 166,
+              "static_shared_bytes": 0
+            },
+            "dgflow_g1_verify_polynomial_many": {
+              "errors": {},
+              "function_name": "dgflow_g1_verify_polynomial_many",
+              "local_bytes_per_thread": 10504,
+              "max_threads_per_block": 384,
+              "num_registers": 166,
+              "static_shared_bytes": 0
+            }
+          },
+          "pool": {
+            "budget_bytes": 134217728,
+            "peak_reserved_bytes": 9933640,
+            "reserved_bytes": 9933640,
+            "slots": 37
+          },
+          "schema_version": 1,
+          "timing_notes": {
+            "additive": "Do not add kernel_seconds to host phase times; device and host overlap.",
+            "download_seconds": "Host synchronous DtoH copy calls, excluding host unpacking.",
+            "host_wall_seconds": "Complete successful execute calls, including waits and host preparation.",
+            "kernel_seconds": "CUDA event elapsed; overlaps sync_seconds and may include GPU scheduling.",
+            "sync_seconds": "Host blocking wait for the completion event; includes kernel execution.",
+            "upload_seconds": "Host synchronous HtoD copy calls, excluding host packing."
+          },
+          "totals": {
+            "allocation_reuses": 71,
+            "allocation_seconds": 0.001510401489213109,
+            "allocations": 23,
+            "batches": 24,
+            "download_bytes": 3494168,
+            "download_seconds": 0.002073499606922269,
+            "failed_batches": 0,
+            "failed_wall_seconds": 0,
+            "frees": 2,
+            "host_wall_seconds": 2.063222300261259,
+            "kernel_seconds": 0.9011334710121155,
+            "launch_seconds": 0.0062157995998859406,
+            "lock_wait_seconds": 7.390067912638187e-05,
+            "output_clear_seconds": 0.0005255003925412893,
+            "rows": 17030,
+            "scheduler_wait_seconds": 1.1408655003178865,
+            "setup_seconds": 0.0007258998230099678,
+            "sync_seconds": 0.8990764007903636,
+            "upload_bytes": 16554688,
+            "upload_seconds": 0.0030194988939911127
+          }
+        },
+        "coordinator_kernel_execution": {
+          "batches": 24,
+          "rows": 17030
+        },
+        "requested": "gpu",
+        "resolved": "gpu"
+      },
+      "config": {
+        "aggregator_count": 2,
+        "aggregator_threshold": 2,
+        "attack": "none",
+        "authority_count": 2,
+        "authority_threshold": 2,
+        "backend": "numpy",
+        "batch_strategy": "regroup",
+        "client_authorities": {
+          "client1": "authority1",
+          "client2": "authority2"
+        },
+        "client_count": 2,
+        "cloud_strategy": "auto",
+        "compute_device": "gpu",
+        "dataset": "mnist",
+        "execution": "auto",
+        "grid": 8,
+        "local_epochs": 2,
+        "malicious_clients": 0,
+        "max_norm_ratio": 2.0,
+        "max_norm_squared": null,
+        "min_cosine": 0.0,
+        "mode": "optimized",
+        "non_iid": false,
+        "offline_aggregators": 0,
+        "proof_block_size": 128,
+        "proof_crs_hash": "8687d175e07840635fc78f651261ce19804bc5a3e7d84cbec15bb70d010055b8",
+        "proof_suite": "lego_norm_v1",
+        "rounds": 2,
+        "rpc_workers": 6,
+        "seed": 42,
+        "test_limit": 200,
+        "train_limit": 1200,
+        "verification": "deterministic",
+        "verification_threads": 2,
+        "verification_workers": 1
+      }
+    }
+  ],
+  "test_limit": 200,
+  "topology": {
+    "aggregators": 2,
+    "authorities": 2,
+    "clients": 2,
+    "physical_hosts": 1
+  },
+  "train_limit": 1200,
+  "review": {
+    "date": "2026-10-11",
+    "upstream": "llcc486/DGFlow",
+    "base_commit": "059e451fcd8c7096437966ddf6af6f31c4e334eb",
+    "scope": "bug fixes and correctness acceptance; not a performance or security claim"
+  },
+  "limitations": [
+    "single physical host",
+    "small real MNIST subset",
+    "one seed and no attacks",
+    "linear model, not full paper CNN",
+    "development CRS",
+    "GPU compatibility measured on RTX 4070 Laptop / NVRTC 12.9.86 / driver API 12070 only"
+  ],
+  "verification": {
+    "python": {
+      "command": "python -m pytest -q --tb=short -ra --durations=15",
+      "passed": 2890,
+      "skipped": 25,
+      "failed": 0,
+      "warnings": 3,
+      "duration_seconds": 494.3,
+      "skip_reasons": {
+        "compact_format_only": 6,
+        "native_unix_bash_unavailable": 16,
+        "windows_symlink_permission": 3
+      }
+    },
+    "frontend": {
+      "command": "node --test",
+      "passed": 254,
+      "failed": 0
+    },
+    "frontend_production_build": {
+      "command": "vite build",
+      "passed": true
+    },
+    "static_analysis": {
+      "command": "ruff check src tests scripts",
+      "passed": true
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "passed": true
+    },
+    "logs_sha256": {
+      "review-oct11-final-complete-pytest.log": "da32e5d54b49ae0b1fc1a9b9ab6022f6704fb7320b360d5f31e845f33822a171",
+      "review-oct11-final-web.log": "5ba30335694dd5a1d12bcfcebd6fe55c64f5e6dd27b30dc6c6eb1183c468dd99"
+    }
+  }
+}
