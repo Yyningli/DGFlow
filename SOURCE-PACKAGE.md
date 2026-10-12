@@ -4,7 +4,7 @@
 
 ## 本次源码版本
 
-版本标识：`dgflow-20261008-complete-deployment-source`。
+本次修复源码发布标识：`dgflow-review-improvements-20261011`，变更与实测范围见[审查记录](docs/research/review-improvements-20261011.md)。此前 `dgflow-20261008-complete-deployment-source` 及其清单只描述当时冻结的文件；后续源码或文档修改后，须完成相应验证并生成新的发布标识、清单与校验文件，不能沿用旧清单声称当前文件已经验收。
 
 MNIST 与 CIFAR-10 均支持 HTTPS 镜像、有限重试、自定义下载源及 `prepare-data --offline`。MNIST 默认优先使用飞桨官方的北京 BOS 镜像，再回退 OSSCI、CVDF；CIFAR-10 优先使用 MindSpore 官方国内镜像，回退原始站点。所有源固定校验原始 MD5，两种国内源均已实测完整下载及结构校验。部署助手在打开服务之前完成训练依赖、完整原生密码扩展、GPU 编译依赖、两种数据集和前端准备。
 
@@ -22,7 +22,7 @@ GPU 硬件识别不依赖 NVIDIA Python 包；部署时自动安装所需 NVRTC�
 - `native/dgfl-native/`：Rust 源码、Cargo.toml、Cargo.lock 和构建配置。
 - `web/`：Vue 源码、测试、测试样本、依赖清单及锁文件。
 - `tests/`、`scripts/`、`configs/`、`.github/`：回归测试、工具、部署示例与 CI。
-- `docs/`：协议说明、研究说明、参考论文及报告资源。部分历史证据由报告生成器和回归测试直接使用，作为必要项目资源保留。
+- `docs/`：协议说明、研究说明、参考来源和报告资源；原 DGFlow 论文不进入交付包。部分历史证据由报告生成器和回归测试直接使用，作为必要项目资源保留，不能作为当前源码重跑所得结果。
 - 根目录 README、依赖清单、pyproject.toml、第三方声明与忽略规则。
 
 完整 CNN 仍是独立本地训练模块，尚未接入安全联邦服务。单归属验证、门限可用性和开发 CRS 的边界仍以 README 与协议说明为准。
@@ -105,10 +105,12 @@ Pop-Location
 
 测试依赖需开发者另行安装，例如 `python -m pip install -e ".[test]"`；应用运行不依赖 pytest 或 Ruff。历史 P1/P2 验收保留在 `docs/research/evidence/p1p2-fixes-20261008.json`。
 
+设计报告第 7 节和答辩稿中的 12 角色、旧证明、固定批次及 3.04 倍轮时比属于冻结历史配置。`build_report.py --freeze-evidence` 仅重建该历史章节，并拒绝不同运行源码指纹；它不会启动新实验，也不能把当前 Lego、四云及并行默认套上旧硬件和旧测试结论。当前版本性能应另行完成匹配实测并形成新报告。
+
 生成纯源码包时，先完成相关测试，然后运行：
 
 ```powershell
-.\.venv\Scripts\python.exe -B scripts/freeze_source.py --source-only --release-id dgflow-20261008-complete-deployment-source --archive dist/source-release/dgflow-20261008-complete-deployment-source/source.zip
+.\.venv\Scripts\python.exe -B scripts/freeze_source.py --source-only --release-id dgflow-review-improvements-20261011 --archive dist/source-release/dgflow-review-improvements-20261011/DGFlow-review-improvements-20261011.zip
 .\.venv\Scripts\python.exe -B scripts/freeze_source.py --verify
 ```
 
