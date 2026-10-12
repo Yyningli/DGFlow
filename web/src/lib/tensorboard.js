@@ -120,7 +120,8 @@ export function useTensorBoard(runId, {
     if (!frameUrl.value || disposed) return
     frameLoaded.value = success
     frameFailed.value = !success
-    message.value = success ? 'TensorBoard 页面已加载。' : '嵌入页面加载失败，请刷新或在新窗口打开。'
+    if (!success) message.value = '嵌入页面加载失败，请刷新或在新窗口打开。'
+    else if (!syncFailed.value) message.value = 'TensorBoard 页面已加载。'
   }
 
   watch([expanded, runId], () => {
