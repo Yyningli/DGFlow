@@ -380,7 +380,7 @@ class RunManager:
             except Exception:
                 pass  # A transient monitoring error must not hide experiment status.
         if node_monitor is not None:
-            record.setdefault('evidence',{})['node_monitoring']=node_monitor.snapshot()
+            self._capture_node_monitor(record,node_monitor)
         return record
 
     def monitor_snapshot(self,run_id):
@@ -392,7 +392,9 @@ class RunManager:
                     'evidence':{key:json.loads(json.dumps(evidence[key])) for key in
                                 ('node_snapshot','node_monitoring','members') if key in evidence}}
             collector=self._node_monitors.get(run_id)
-        return monitor_snapshot(record,collector.snapshot() if collector is not None else None)
+        if collector is not None:
+            self._capture_node_monitor(record,collector)
+        return monitor_snapshot(record)
 
     def _sync_tensorboard(self,record):
         try:
@@ -410,8 +412,7 @@ class RunManager:
 
     def _save(self,record):
         collector=self._node_monitors.get(record['run_id'])
-        if collector is not None:
-            record.setdefault('evidence',{})['node_monitoring']=collector.snapshot()
+        if collector is not None and self._capture_node_monitor(record,collector):
             totals=record['evidence']['node_monitoring'].get('summary',{}).get('training_rounds',{})
             for row in record.get('rounds',[]):
                 measured=totals.get(str(row['round']))
@@ -419,6 +420,19 @@ class RunManager:
                     row['monitoring_overhead']=dict(measured)
                     row['metrics_eval_s']=measured.get('metrics_eval_s')
         atomic_json(self.runtime/'results'/record['run_id']/'result.json',record)
+
+    def _capture_node_monitor(self,record,collector):
+        # Optional telemetry must not break persistence or hide a running job.
+        # Validate a detached copy before replacing the last usable snapshot.
+        try:
+            snapshot=json.loads(json.dumps(collector.snapshot(),allow_nan=False))
+            if not isinstance(snapshot,dict) or not isinstance(snapshot.get('summary',{}),dict):
+                raise ValueError('invalid node monitoring snapshot')
+        except Exception as exc:
+            record.setdefault('evidence',{})['node_monitoring_error']=self._failure_detail(exc)
+            return False
+        record.setdefault('evidence',{})['node_monitoring']=snapshot
+        return True
 
     def _failure_detail(self,exc):
         return f'{type(exc).__name__}: {exc}'.replace(str(self.runtime.parent),'[workspace]')[:600]
@@ -1101,6 +1115,9 @@ class RunManager:
                 try:
                     cached=memory.get('hardware',{}).get('samples',[])
                     if cached: node_monitor.observe_local(cached[-1])
+                except Exception as exc: record['evidence']['node_monitoring_error']=self._failure_detail(exc)
+                # A failed final sample/log write must never skip sampler stop.
+                try:
                     record['evidence']['node_monitoring']=node_monitor.finish()
                 except Exception as exc: record['evidence']['node_monitoring_error']=self._failure_detail(exc)
             self._sync_tensorboard(record)

@@ -403,6 +403,21 @@ def _events(path, event_type, offset=0):
             yield event_type.FromString(data)
 
 
+def _event_snapshot(path):
+    _no_link(path)
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
+        return None
+    return stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns
+
+
+def _event_replaced(previous, current):
+    # An external writer may rewrite the prefix and grow the same inode. Only
+    # our own writes (whose final snapshot is saved below) are known appends.
+    return current is None or current != previous
+
+
 class TensorBoardLogs:
     def __init__(self, runtime, *, max_cached_runs=256):
         self.runtime = Path(runtime).absolute()
@@ -471,6 +486,29 @@ class TensorBoardLogs:
         self._last_error = reason
         return {'available': False, 'url': URL, 'run_id': run_id, 'reason': reason}
 
+    def _forget_replay(self, run_id):
+        self._replay_offsets.pop(run_id, None)
+        self._replay_pending.pop(run_id, None)
+
+    def _check_replay_files(self, run_id):
+        # A consumed journal may have no new batches to write. Validate the
+        # files its cursor relied on before deciding to skip that journal.
+        with self._lock:
+            if run_id not in self._replay_offsets:
+                return
+            for key, state in self._states.items():
+                if key == run_id:
+                    scope = None
+                elif isinstance(key, tuple) and key[0] == run_id:
+                    scope = key[1:]
+                else:
+                    continue
+                directory = self._directory(run_id, scope)
+                if any(_event_replaced(previous, _event_snapshot(directory / name))
+                       for name, previous in state['snapshots'].items()):
+                    self._forget_replay(run_id)
+                    return
+
     def _write(self, run_id, batches, *, scope=None):
         try:
             from tensorboard.compat.proto.event_pb2 import Event
@@ -480,18 +518,31 @@ class TensorBoardLogs:
                 directory = self._directory(run_id, scope)
                 cache_key = run_id if scope is None else (run_id, *scope)
                 with _run_lock(directory):
+                    files = sorted(directory.glob('events.out.tfevents.*'))
+                    snapshots = {path.name: _event_snapshot(path) for path in files}
                     state = self._states.pop(cache_key, None)
+                    if state is not None and any(
+                        _event_replaced(previous, snapshots.get(name))
+                        for name, previous in state['snapshots'].items()
+                    ):
+                        # The cache describes persisted evidence, not attempted
+                        # writes. Cleanup, truncation or replacement invalidates
+                        # every derived key; retain and rescan the current files.
+                        state = None
+                        self._forget_replay(run_id)
                     if state is None:
-                        state = {'seen': set(), 'metadata_tags': set(), 'sizes': {}, 'damaged': set(), 'file': None}
+                        state = {'seen': set(), 'metadata_tags': set(), 'snapshots': {}, 'damaged': set(), 'file': None}
                     self._states[cache_key] = state
                     while len(self._states) > self._max_cached_runs:
-                        self._states.popitem(last=False)
-                    files = sorted(directory.glob('events.out.tfevents.*'))
+                        evicted, _ = self._states.popitem(last=False)
+                        # No cursor may outlive the file identities needed to
+                        # validate it. Replay is safe and preserves the bound.
+                        self._forget_replay(evicted[0] if isinstance(evicted, tuple) else evicted)
                     for path in files:
-                        _no_link(path)
-                        size = path.stat().st_size
-                        if state['sizes'].get(path.name) != size:
-                            previous_size = state['sizes'].get(path.name, 0)
+                        size = snapshots[path.name][2]
+                        previous = state['snapshots'].get(path.name)
+                        if previous != snapshots[path.name]:
+                            previous_size = previous[2] if previous else 0
                             offset = previous_size if size >= previous_size and path.name not in state['damaged'] else 0
                             try:
                                 for event in _events(path, Event, offset):
@@ -500,7 +551,7 @@ class TensorBoardLogs:
                                                                   if value.HasField('metadata'))
                             except EOFError:
                                 state['damaged'].add(path.name)
-                            state['sizes'][path.name] = size
+                            state['snapshots'][path.name] = snapshots[path.name]
                     # TensorBoard's live reader advances files monotonically.
                     # Never append to an older file after a different exporter
                     # has created a newer one, or live dashboards miss points.
@@ -542,7 +593,7 @@ class TensorBoardLogs:
                                 writer.flush()
                             state['seen'].update(pending_keys)
                             state['metadata_tags'].update(pending_metadata)
-                            state['sizes'][path.name] = path.stat().st_size
+                            state['snapshots'][path.name] = _event_snapshot(path)
                         except Exception:
                             # Re-scan any successfully persisted prefix and rotate
                             # on retry; a torn frame must never hide later points.
@@ -692,6 +743,7 @@ class TensorBoardLogs:
     def _sync(self, record):
         run_id = record.get('run_id') if isinstance(record, dict) else None
         try:
+            self._check_replay_files(run_id)
             batches = []
             scoped_batches = {}
             cumulative_bytes = 0
@@ -836,7 +888,8 @@ class TensorBoardLogs:
                     # the next sync replays its persistent journals from scratch.
                     offsets.clear()
                     remaining.clear()
-                self._replay_pending[run_id] = remaining
+                if self._replay_offsets.get(run_id) is offsets:
+                    self._replay_pending[run_id] = remaining
             return result
         except Exception as exc:
             return self._error(exc, run_id)
