@@ -45,6 +45,15 @@ def _scalars(value, fields):
     return {field: _number(value.get(field)) for field in fields}
 
 
+def _timestamp(value):
+    if not isinstance(value, str) or len(value) > 64:
+        raise ValueError('invalid telemetry timestamp')
+    parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
+    if parsed.tzinfo is None:
+        raise ValueError('telemetry timestamp requires a timezone')
+    return value
+
+
 def _safe_path(path, root):
     """Reject junctions as well as symlinks before opening monitoring files."""
     path, root = Path(path).absolute(), Path(root).absolute()
@@ -95,14 +104,14 @@ class _Journal:
                         sequence = event['sequence']
                         if (type(sequence) is not int or sequence <= self.last_sequence
                                 or event['kind'] not in ('resource', 'epoch', 'training')
-                                or not isinstance(event['payload'], dict)
-                                or not isinstance(event['time'], str)):
+                                or not isinstance(event['payload'], dict)):
                             continue
+                        timestamp = _timestamp(event['time'])
                         payload = _clean_payload(event['kind'], event['payload'])
                         if sequence != self.last_sequence + 1:
                             self.error = 'Telemetry journal has missing sequence numbers; later readings recovered.'
                         self._accept({'sequence': sequence, 'kind': event['kind'],
-                                      'time': event['time'], 'payload': payload}, offset)
+                                      'time': timestamp, 'payload': payload}, offset)
                     except (ValueError, KeyError, TypeError, UnicodeDecodeError):
                         self.error = 'Unreadable telemetry journal row was skipped.'
         except (OSError, ValueError) as exc:
@@ -183,11 +192,10 @@ class _Journal:
                             sequence = event['sequence']
                             if type(sequence) is not int or sequence <= (rows[-1]['sequence'] if rows else after):
                                 continue
-                            if not isinstance(event['time'], str):
-                                raise ValueError('invalid telemetry timestamp')
+                            timestamp = _timestamp(event['time'])
                             if sequence != (rows[-1]['sequence'] if rows else after) + 1:
                                 error = 'Telemetry journal has missing sequence numbers; later readings recovered.'
-                            rows.append({'sequence': sequence, 'kind': event['kind'], 'time': event['time'],
+                            rows.append({'sequence': sequence, 'kind': event['kind'], 'time': timestamp,
                                          'payload': _clean_payload(event['kind'], event['payload'])})
                         except (ValueError, KeyError, TypeError, UnicodeDecodeError):
                             error = 'Unreadable telemetry journal row was skipped.'
@@ -206,6 +214,8 @@ class _Journal:
 
 
 def _clean_payload(kind, payload):
+    if not isinstance(payload, dict):
+        raise ValueError('invalid telemetry payload')
     if kind == 'training':
         if (type(payload.get('round_id')) is not int or payload['round_id'] < 1
                 or type(payload.get('epochs')) is not int or payload['epochs'] < 0):
@@ -290,6 +300,10 @@ class NodeTelemetry:
                 if self._active['task_id'] != task:
                     raise ValueError('another telemetry task is active')
                 return {'node_id': self.node_id, 'task_id': task, 'active': True}
+            if self._threads:
+                # stop() is bounded even if a driver is stuck. Keep at most
+                # one sampler until its final probe and driver cleanup finish.
+                raise ValueError('telemetry sampler cleanup is still pending')
             context = self._contexts.get(task, {'round_id': 0, 'stage': 'preparing'})
             state = {'task_id': task, 'machine': machine,
                      'collect_machine': payload.get('collect_machine', False),
