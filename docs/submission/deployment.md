@@ -32,7 +32,7 @@ bash scripts/start_demo.sh --offline
 
 完整部署记录位于 `.venv/dgflow-deployment.json`，其中 `proof_parameters` 记录默认参数核验结果。原生扩展另用 `tmp/native-toolchain/install.json` 绑定源码和实际二进制摘要；相同的 0.2.0 版本号不代表同一构建。离线重启时保留该记录，或准备匹配平台的本地 wheel 及其 `.whl.source.json`。部署阶段通过 `scripts/setup_lego_parameters.py --runtime TARGET --defaults` 补齐两个默认形状；其他模型维度仍需显式建立或安装匹配参数。
 
-NVIDIA 驱动由操作系统提供，pip 不安装驱动。无 NVIDIA 显卡时完整部署采用 CPU；有显卡但驱动或密码自检失败时会说明原因，CPU 仍可用，只有通过精确算术自检后才开放 GPU。NVRTC 编译出的 PTX 需要兼容驱动，不能仅以“支持 CUDA 12”判断；参见 [NVIDIA 官方兼容性说明](https://docs.nvidia.com/deploy/cuda-compatibility/minor-version-compatibility.html)。
+NVIDIA 驱动由操作系统提供，pip 不安装驱动。无 NVIDIA 显卡时完整部署采用 CPU；有显卡但驱动或密码自检失败时会说明原因，CPU 仍可用，只有通过精确算术自检后才开放 GPU。当前按实际显卡的 `sm_` 架构由 NVRTC 生成 CUBIN，并使用独立二进制缓存，避免较新 NVRTC 生成的 PTX 被较旧驱动拒绝加载；原有 `.ptx` 不作为新二进制读取。此方式遵循 CUDA 同一大版本的小版本兼容条件，仍须核验实际驱动、硬件和精确运算自检，不能仅以“支持 CUDA 12”判断。参见 [NVIDIA 官方兼容性说明](https://docs.nvidia.com/deploy/cuda-compatibility/minor-version-compatibility.html)和 [NVRTC CUBIN 接口](https://docs.nvidia.com/cuda/nvrtc/)。
 
 已自行创建环境时，Windows 可通过 `-PythonPath` 指定实际解释器；Linux 使用 `DGFL_PYTHON_PATH`。同一解释器完成部署后再离线启动，不跨操作系统复制整个虚拟环境。
 
