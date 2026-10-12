@@ -125,3 +125,19 @@ test('iframe errors stay explicit during background log sync and a refresh retri
     assert.match(current.state.message.value, /正在加载/)
   } finally { current?.scope.stop(); globalThis.fetch = original }
 })
+
+test('a late iframe load preserves the reason for a failed background synchronization', async () => {
+  const original = globalThis.fetch
+  globalThis.fetch = async () => response({ available: true, url: '/tensorboard/' })
+  let current
+  try {
+    current = session()
+    await flush()
+    globalThis.fetch = async () => { throw new Error('日志写入失败') }
+    await [...current.scheduled.values()].find(timer => timer.delay === 10000).fn()
+    assert.equal(current.state.syncFailed.value, true)
+    current.state.confirmFrame(true)
+    assert.equal(current.state.frameLoaded.value, true)
+    assert.match(current.state.message.value, /日志写入失败/)
+  } finally { current?.scope.stop(); globalThis.fetch = original }
+})
